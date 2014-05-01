@@ -26,6 +26,16 @@ echo 17,,,-
 } | sfdisk -D -H 255 -S 63 -C ${CYLINDERS} ${LOOPDEV}
 
 WRKDIR=`pwd`
+
+finish () {
+  cd ${WRKDIR}
+  umount /mnt || true
+  kpartx -d ${LOOPDEV} || true
+  losetup -d ${LOOPDEV} || true
+}
+
+trap finish EXIT
+
 MLOOPDEV=`echo $LOOPDEV | sed -e 's,/dev/,/dev/mapper/,g'`
 kpartx -a ${LOOPDEV}
 mkfs.vfat ${MLOOPDEV}p1
@@ -38,21 +48,12 @@ cp linux-sunxi/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb /mnt/
 cp xen/xen/xen /mnt/
 umount /mnt
 
-FSIMG=linaro-trusty-developer-20140428-654.tar.gz
-if [ ! -e $FSIMG ]; then
-  curl -OL http://snapshots.linaro.org/ubuntu/images/developer/latest/$FSIMG
-fi
-
 mount ${MLOOPDEV}p2 /mnt
-tar -C /mnt -xf $FSIMG
+tar -C /mnt -xf $ROOTFS
 cd /mnt
 mv binary/* .
 rmdir binary
 cp ${WRKDIR}/templates/fstab etc/fstab
 cp ${WRKDIR}/templates/interfaces etc/network/interfaces
 cp ${WRKDIR}/templates/resolv.conf etc/resolv.conf
-
-cd ${WRKDIR}
-umount /mnt
-kpartx -d ${LOOPDEV}
-losetup -d ${LOOPDEV}
+cp ${WRKDIR}/templates/hvc0.conf etc/init
