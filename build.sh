@@ -29,6 +29,8 @@ WRKDIR=`pwd`
 
 finish () {
   cd ${WRKDIR}
+  umount /mnt/proc || true
+  umount /mnt/dev || true
   umount /mnt || true
   kpartx -d ${LOOPDEV} || true
   losetup -d ${LOOPDEV} || true
@@ -55,5 +57,10 @@ mv binary/* .
 rmdir binary
 cp ${WRKDIR}/templates/fstab etc/fstab
 cp ${WRKDIR}/templates/interfaces etc/network/interfaces
+rm -f etc/resolv.conf
 cp ${WRKDIR}/templates/resolv.conf etc/resolv.conf
 cp ${WRKDIR}/templates/hvc0.conf etc/init
+mount -o bind /proc /mnt/proc
+mount -o bind /dev /mnt/dev
+chroot /mnt apt-get -y update
+chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential
