@@ -44,7 +44,7 @@ mkfs.vfat ${MLOOPDEV}p1
 mkfs.ext4 ${MLOOPDEV}p2
 
 mount ${MLOOPDEV}p1 /mnt
-cp u-boot-sunxi/boot/boot.scr /mnt/
+cp boot/boot.scr /mnt/
 cp linux-sunxi/arch/arm/boot/zImage /mnt/vmlinuz
 cp linux-sunxi/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb /mnt/
 cp xen/xen/xen /mnt/
