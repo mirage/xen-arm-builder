@@ -55,6 +55,8 @@ tar -C /mnt -xf $ROOTFS
 cd /mnt
 mv binary/* .
 rmdir binary
+rsync -av ${WRKDIR}/linux-arm-modules/ /mnt/
+chown -R root:root /mnt/lib/modules/
 cp ${WRKDIR}/templates/fstab etc/fstab
 cp ${WRKDIR}/templates/interfaces etc/network/interfaces
 rm -f etc/resolv.conf
