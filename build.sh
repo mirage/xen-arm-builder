@@ -4,7 +4,13 @@
 # sudo apt-get install kpartx sfdisk curl
 IMG=cubie.img
 rm -f $IMG
-qemu-img create $IMG 2G
+qemu-img create $IMG 6G
+parted ${IMG} --script -- mklabel msdos
+parted ${IMG} --script -- mkpart primary fat32 2048s 264191s
+parted ${IMG} --script -- mkpart primary ext4 264192s 6555647s
+parted ${IMG} --script -- mkpart primary ext4 6555648s -1s
+parted ${IMG} --script -- set 3 lvm on
+
 #printf ",32,C,*\n,4096,L\n,,8e\n\n\n" | sfdisk -uM -D $IMG
 # cleanup loops
 for loop in $(losetup -j ${IMG}); do
@@ -16,15 +22,9 @@ losetup -f ${IMG}
 LOOPDEV=$(losetup -j ${IMG} -o 0 | cut -d ":" -f 1)
 
 # Create partition table
-dd if=/dev/zero of=${LOOPDEV} bs=1024 count=1024
 dd if=u-boot-sunxi/u-boot-sunxi-with-spl.bin of=${LOOPDEV} bs=1024 seek=8
 SIZE=`fdisk -l ${LOOPDEV} | grep Disk | grep bytes | awk '{print $5}'`
 CYLINDERS=`echo $SIZE/255/63/512 | bc`
-{
-echo 1,16,0x0C,*
-echo 17,,,-
-} | sfdisk -D -H 255 -S 63 -C ${CYLINDERS} ${LOOPDEV}
-
 WRKDIR=`pwd`
 
 finish () {
