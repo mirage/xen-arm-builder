@@ -2,6 +2,8 @@
 
 ROOTFS ?= linaro-trusty-developer-20140428-654.tar.gz
 ROOTFSURL ?= http://snapshots.linaro.org/ubuntu/images/developer/latest/
+BOARD ?= cubieboard2
+# BOARD ?= cubietruck
 
 all: 
 	@echo ------
@@ -37,7 +39,7 @@ cubie.tar: cubie.img $(ROOTFS)
 	tar -Scf $@ $<
 
 ## Generate the u-boot boot commands script
-%.scr: %.cmd
+%.scr: %.cmd.$(BOARD)
 	./u-boot-sunxi/tools/mkimage -C none -A arm -T script -d "$<" "$@"
 	
 clean:
