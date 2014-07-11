@@ -30,11 +30,11 @@ $(ROOTFS):
 	curl -OL $(ROOTFSURL)/$(ROOTFS)
 
 ## Build the image file
-cubie.img: boot/boot.scr
+cubie.img: boot/boot.scr $(ROOTFS)
 	sudo env ROOTFS=$(ROOTFS) ./build.sh || (rm -f $@; exit 1)
 
 ## Make a sparse (smaller) archive of the image file
-cubie.tar: cubie.img $(ROOTFS)
+cubie.tar: cubie.img
 	rm -f cubie.tar
 	tar -Scf $@ $<
 
