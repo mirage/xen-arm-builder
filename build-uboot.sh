@@ -3,7 +3,7 @@
 case $BOARD in
 cubieboard2) TARG=Cubieboard2_config ;;
 cubietruck) TARG=Cubietruck_config ;;
-*) echo Unknown board $BOARD;; exit 1
+*) echo Unknown board $BOARD; exit 1;;
 esac
 
 cd u-boot-sunxi
