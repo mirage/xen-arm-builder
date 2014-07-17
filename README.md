@@ -25,10 +25,9 @@ These scripts must be run on Ubuntu (they install some packages using `apt-get`)
     You may get prompted about extra configuration options at this point.
     You can probably just press Return to accept the default for each one.
 
-4. Build the SDcard image. Go to <http://snapshots.linaro.org/ubuntu/images/developer/latest/> and find
-   the latest image name (`linaro-trusty-developer-20140709-672.tar.gz` at the time of writing), then:
+4. Build the SDcard image:
 
-         $ make cubie.tar ROOTFS=linaro-trusty-developer-20140709-672.tar.gz
+         $ make cubie.tar
 
    It will need to mount various loopback devices on `/mnt` during this process.
 
@@ -65,5 +64,3 @@ You should now be able to use Xen via the `xl` command:
     $ xl list
     Name                                        ID   Mem VCPUs      State   Time(s)
     Domain-0                                     0   512     2     r-----     171.7
-
-Note: if you get `No usable Xen toolstack selected`, try switching from the linaro Xen package to the Ubuntu ones. They seem to be broken at the moment (`/usr/lib/xen-4.4` is missing). You'll need to reboot after doing this.
