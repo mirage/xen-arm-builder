@@ -1,7 +1,7 @@
 .PHONY: all clean
 
-ROOTFS ?= linaro-trusty-developer-20140428-654.tar.gz
-ROOTFSURL ?= http://snapshots.linaro.org/ubuntu/images/developer/latest/
+ROOTFS ?= linaro-trusty-developer-20140522-661.tar.gz
+ROOTFSURL ?= http://releases.linaro.org/14.05/ubuntu/trusty-images/developer/
 BOARD ?= cubieboard2
 # BOARD ?= cubietruck
 
