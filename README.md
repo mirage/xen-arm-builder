@@ -7,8 +7,14 @@ The scripts in this repository provide an easy way to set up Xen on a Cubieboard
 
 These scripts must be run on Ubuntu (they install some packages using `apt-get`).
 
+# Pre-built binaries
 
-# Installation
+To save time, you can download pre-build images from here:
+
+* http://blobs.openmirage.org/cubieboard2-xen-iso.tar.bz2 (Cubieboard 2)
+* http://blobs.openmirage.org/cubietruck-xen-iso.tar.bz2 (CubieTruck)
+
+# Building from source
 
 1. Select your board (`cubieboard2` or `cubietruck`):
 
@@ -27,15 +33,17 @@ These scripts must be run on Ubuntu (they install some packages using `apt-get`)
 
 4. Build the SDcard image:
 
-         $ make cubie.tar
+         $ make cubie.img
 
    It will need to mount various loopback devices on `/mnt` during this process.
 
-5. Copy the `cubie.img` to the SDcard:
+# Installation
+
+1. Copy the `cubie.img` to the SDcard:
 
         $ dd if=cubie.img of=/dev/mmcblk0
 
-6. Insert the SDcard in the device, then connect the network and power.
+2. Insert the SDcard in the device, then connect the network and power.
    The device should get an IP address using DHCP.
    SSH to the device as user `linaro` (password `linaro`), install your SSH public key and
    change login password (or lock the account with `sudo passwd -l linaro`).
