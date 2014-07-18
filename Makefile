@@ -43,4 +43,4 @@ cubie.tar: cubie.img
 	./u-boot-sunxi/tools/mkimage -C none -A arm -T script -d "$<" "$@"
 	
 clean:
-	rm -f cubie.img
+	rm -f cubie.img boot/boot.scr
