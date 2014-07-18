@@ -1,0 +1,9 @@
+#!/bin/bash -eu
+
+echo Creating LVM partition...
+parted /dev/mmcblk0 --script -- mkpart primary ext4 6555648s -1s
+parted /dev/mmcblk0 --script -- set 3 lvm on
+pvcreate /dev/mmcblk0p3
+vgcreate vg0 /dev/mmcblk0p3
+vgs
+rm -f /etc/rcS.d/S10lvm

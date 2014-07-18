@@ -4,12 +4,10 @@
 # sudo apt-get install kpartx sfdisk curl
 IMG=cubie.img
 rm -f $IMG
-qemu-img create $IMG 6G
+qemu-img create $IMG 3G
 parted ${IMG} --script -- mklabel msdos
 parted ${IMG} --script -- mkpart primary fat32 2048s 264191s
-parted ${IMG} --script -- mkpart primary ext4 264192s 6555647s
-parted ${IMG} --script -- mkpart primary ext4 6555648s -1s
-parted ${IMG} --script -- set 3 lvm on
+parted ${IMG} --script -- mkpart primary ext4 264192s -1s
 
 #printf ",32,C,*\n,4096,L\n,,8e\n\n\n" | sfdisk -uM -D $IMG
 # cleanup loops
@@ -64,7 +62,9 @@ cp ${WRKDIR}/templates/interfaces etc/network/interfaces
 rm -f etc/resolv.conf
 cp ${WRKDIR}/templates/resolv.conf etc/resolv.conf
 cp ${WRKDIR}/templates/hvc0.conf etc/init
+cp --preserve=mode ${WRKDIR}/templates/init.d/add-lvm-partition etc/init.d/
+ln -s ../init.d/add-lvm-partition etc/rcS.d/S10lvm
 mount -o bind /proc /mnt/proc
 mount -o bind /dev /mnt/dev
 chroot /mnt apt-get -y update
-chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev
+chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev parted --no-install-recommends
