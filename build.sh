@@ -69,3 +69,7 @@ mount -o bind /dev /mnt/dev
 chroot /mnt apt-get -y update
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev parted avahi-daemon libnss-mdns --no-install-recommends
 echo UseDNS no >> etc/ssh/sshd_config
+
+# Hostname
+sed -i "s/linaro-developer/$BOARD/" etc/hosts
+echo $BOARD > etc/hostname

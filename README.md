@@ -53,14 +53,14 @@ To save time, you can download pre-build images from here:
 The default image has an LVM partition on `mmcblk0p3`, but it's quite small so you may prefer to delete it and create a new one that fills the disk.
 You can use `cfdisk` for this, then use `vgcreate` to create a volume group from the new partition:
 
-    root@linaro-developer:~# lsblk
+    root@cubieboard2:~# lsblk
     NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
     mmcblk0     179:0    0  14.7G  0 disk
     ├─mmcblk0p1 179:1    0   128M  0 part
     ├─mmcblk0p2 179:2    0     3G  0 part /
     └─mmcblk0p3 179:3    0  11.5G  0 part
     
-    root@linaro-developer:~# vgcreate vg0 /dev/mmcblk0p3
+    root@cubieboard2:~# vgcreate vg0 /dev/mmcblk0p3
       No physical volume label read from /dev/mmcblk0p3
       Physical volume "/dev/mmcblk0p3" successfully created
       Volume group "vg0" successfully created
