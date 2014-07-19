@@ -65,10 +65,19 @@ cp ${WRKDIR}/templates/resolv.conf etc/resolv.conf
 cp ${WRKDIR}/templates/hvc0.conf etc/init
 cp --preserve=mode ${WRKDIR}/templates/init.d/1st-boot etc/init.d/
 ln -s ../init.d/1st-boot etc/rcS.d/S10firstboot
+
+# Prevent services from starting while we build the image
+echo 'exit 101' > usr/sbin/policy-rc.d
+chmod a+x usr/sbin/policy-rc.d
+
 mount -o bind /proc /mnt/proc
 mount -o bind /dev /mnt/dev
+
 chroot /mnt apt-get -y update
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev parted avahi-daemon libnss-mdns --no-install-recommends
+
+rm usr/sbin/policy-rc.d
+
 echo UseDNS no >> etc/ssh/sshd_config
 
 # Hostname
