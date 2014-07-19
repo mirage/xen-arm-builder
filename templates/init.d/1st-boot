@@ -1,0 +1,24 @@
+#!/bin/bash
+
+echo Extending root partition to 3GB...
+# Note: start sector must match value in build.sh
+sfdisk --no-reread /dev/mmcblk0 <<EOF
+# partition table of /dev/mmcblk0
+unit: sectors
+
+/dev/mmcblk0p1 : start=     2048, size=   262144, Id= c
+/dev/mmcblk0p2 : start=   264192, size=  6291455, Id=83
+EOF
+set -eu
+partprobe
+resize2fs /dev/mmcblk0p2
+
+echo Creating LVM partition...
+parted /dev/mmcblk0 --script -- mkpart primary ext4 6555648s -1s
+parted /dev/mmcblk0 --script -- set 3 lvm on
+pvcreate /dev/mmcblk0p3
+vgcreate vg0 /dev/mmcblk0p3
+vgs
+
+# Don't run this script again
+rm -f /etc/rcS.d/S10firstboot
