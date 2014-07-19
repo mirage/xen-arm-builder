@@ -73,3 +73,8 @@ echo UseDNS no >> etc/ssh/sshd_config
 # Hostname
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
 echo $BOARD > etc/hostname
+
+# Mirage user
+chroot /mnt userdel -r linaro
+chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
+sed -i "s/linaro-developer/$BOARD/" etc/hosts

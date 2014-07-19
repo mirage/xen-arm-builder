@@ -45,8 +45,8 @@ To save time, you can download pre-build images from here:
 
 2. Insert the SDcard in the device, then connect the network and power.
    The device should get an IP address using DHCP.
-   SSH to the device as user `linaro` (password `linaro`), install your SSH public key and
-   change login password (or lock the account with `sudo passwd -l linaro`).
+   SSH to the device as user `mirage` (password `mirage`), install your SSH public key and
+   change login password (or lock the account with `sudo passwd -l mirage`).
 
 # Guest disks
 
