@@ -1,7 +1,7 @@
 #!/bin/sh -ex
 # Clone github repos, and pull to refresh them if they exist
 
-sudo apt-get -y install rsync git gcc-arm-linux-gnueabihf build-essential qemu kpartx binfmt-support qemu-user-static python bc parted
+sudo apt-get -y install rsync git gcc-arm-linux-gnueabihf build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools
 
 clone_branch () {
   git clone ${1}/${2}.git
