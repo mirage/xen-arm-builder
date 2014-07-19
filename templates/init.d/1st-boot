@@ -20,5 +20,9 @@ pvcreate /dev/mmcblk0p3
 vgcreate vg0 /dev/mmcblk0p3
 vgs
 
+echo Regenerating ssh keys...
+rm /etc/ssh/ssh_host_*
+dpkg-reconfigure openssh-server
+
 # Don't run this script again
 rm -f /etc/rcS.d/S10firstboot
