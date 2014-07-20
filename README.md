@@ -5,8 +5,6 @@ The scripts in this repository provide an easy way to set up Xen on a Cubieboard
 * Ubuntu Trusty as dom0, and
 * LVM managing guest disks.
 
-These scripts must be run on Ubuntu (they install some packages using `apt-get`).
-
 # Pre-built binaries
 
 To save time, you can download pre-build images from here:
@@ -15,6 +13,8 @@ To save time, you can download pre-build images from here:
 * http://blobs.openmirage.org/cubietruck-xen-iso.tar.bz2 (CubieTruck)
 
 # Building from source
+
+These scripts must be run on Ubuntu (they install some packages using `apt-get`).
 
 1. Select your board (`cubieboard2` or `cubietruck`):
 
@@ -39,19 +39,42 @@ To save time, you can download pre-build images from here:
 
 # Installation
 
+## Linux
+
 1. Copy the `cubie.img` to the SDcard:
 
         $ dd if=cubie.img of=/dev/mmcblk0
 
-2. Insert the SDcard in the device, then connect the network and power.
-   The device should get an IP address using DHCP.
-   SSH to the device (the name is `$BOARD.local.`, which can be used if your machine
-   supports mDNS/avahi/zeroconf):
+## OS X
 
-       $ ssh mirage@cubieboard2.local.
-   
-   The password is `mirage`.
-   Install your SSH public key and change login password (or lock the account with `sudo passwd -l mirage`).
+1. Find the disk device of the card you inserted:
+
+        sudo diskutil list
+
+   (e.g. `disk2`)
+
+2. Unmount the disk images:
+
+        sudo diskutil unmountDisk /dev/diskN
+
+3. Copy the image:
+
+        sudo dd if=cubie.img of=/dev/rdiskN bs=64k
+
+   Note: Without the 'rdisk' in the output file, the copying will be extremely slow due to buffering.
+
+# Booting
+
+Insert the SDcard in the device, then connect the network and power.
+The device should get an IP address using DHCP.
+SSH to the device (the name is `$BOARD.local.`, which can be used if your machine
+supports mDNS/avahi/zeroconf):
+
+    $ ssh mirage@cubieboard2.local.
+
+The password is `mirage`.
+Install your SSH public key and change login password (or lock the account with `sudo passwd -l mirage`).
+
 
 # Guest disks
 
