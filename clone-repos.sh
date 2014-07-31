@@ -20,11 +20,12 @@ else
   cd ..
 fi
 
-if [ ! -d linux-sunxi ]; then
-  clone_branch git://github.com/linux-sunxi linux-sunxi sunxi-devel
+if [ ! -d linux ]; then
+  clone_branch git://git.kernel.org/pub/scm/linux/kernel/git/torvalds linux master
+  git reset --hard v3.16-rc7
 else
-  cd linux-sunxi
-  git pull origin sunxi-devel
+  cd linux
+  git pull origin v3.16-rc7
   cd ..
 fi
 
