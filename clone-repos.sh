@@ -16,23 +16,25 @@ if [ ! -d u-boot-sunxi ]; then
   clone_branch git://github.com/jwrdegoede u-boot-sunxi sunxi-next
 else
   cd u-boot-sunxi
-  git pull origin sunxi-next
+  git pull --ff-only origin sunxi-next
   cd ..
 fi
 
 if [ ! -d linux ]; then
-  clone_branch git://git.kernel.org/pub/scm/linux/kernel/git/torvalds linux master
-  git reset --hard v3.16-rc7
+  #clone_branch git://git.kernel.org/pub/scm/linux/kernel/git/torvalds linux master
+  clone_branch https://github.com/talex5 linux master
 else
   cd linux
-  git pull origin v3.16-rc7
+  git pull --ff-only https://github.com/talex5/linux.git master
   cd ..
 fi
 
 if [ ! -d xen ]; then
-  clone_branch git://xenbits.xen.org xen stable-4.4
+  #clone_branch git://xenbits.xen.org xen stable-4.4
+  clone_branch https://github.com/talex5 xen stable-4.4
 else
   cd xen
-  git pull origin stable-4.4
+  #git pull origin stable-4.4
+  git pull --ff-only https://github.com/talex5/xen.git stable-4.4
   cd ..
 fi
