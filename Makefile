@@ -18,7 +18,7 @@ all:
 ## Fetch and clone all the external files needed
 clone: $(ROOTFS)
 	./clone-repos.sh
-	cp config/config-cubie2 linux-sunxi/.config
+	cp config/config-cubie2 linux/.config
 
 build:
 	./build-uboot.sh

@@ -45,9 +45,9 @@ mkfs.ext4 ${MLOOPDEV}p2
 
 mount ${MLOOPDEV}p1 /mnt
 cp boot/boot.scr /mnt/
-cp linux-sunxi/arch/arm/boot/zImage /mnt/vmlinuz
-cp linux-sunxi/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb /mnt/
-cp linux-sunxi/arch/arm/boot/dts/sun7i-a20-cubietruck.dtb /mnt/
+cp linux/arch/arm/boot/zImage /mnt/vmlinuz
+cp linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb /mnt/
+cp linux/arch/arm/boot/dts/sun7i-a20-cubietruck.dtb /mnt/
 cp xen/xen/xen /mnt/
 umount /mnt
 
