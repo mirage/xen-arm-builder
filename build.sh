@@ -2,7 +2,7 @@
 # Build a Xen/Ubuntu image for a Cubieboard2
 
 # sudo apt-get install kpartx sfdisk curl
-IMG=cubie.img
+IMG=${BOARD}.img
 rm -f $IMG
 qemu-img create $IMG 1G
 parted ${IMG} --script -- mklabel msdos
@@ -21,7 +21,7 @@ losetup -f ${IMG}
 LOOPDEV=$(losetup -j ${IMG} -o 0 | cut -d ":" -f 1)
 
 # Create partition table
-dd if=u-boot-sunxi/u-boot-sunxi-with-spl.bin of=${LOOPDEV} bs=1024 seek=8
+dd if=u-boot-sunxi/build-${BOARD}/u-boot-sunxi-with-spl.bin of=${LOOPDEV} bs=1024 seek=8
 SIZE=`fdisk -l ${LOOPDEV} | grep Disk | grep bytes | awk '{print $5}'`
 CYLINDERS=`echo $SIZE/255/63/512 | bc`
 WRKDIR=`pwd`
@@ -44,7 +44,7 @@ mkfs.vfat ${MLOOPDEV}p1
 mkfs.ext4 ${MLOOPDEV}p2
 
 mount ${MLOOPDEV}p1 /mnt
-cp boot/boot.scr /mnt/
+cp boot/boot-${BOARD}.scr /mnt/boot.scr
 cp linux/arch/arm/boot/zImage /mnt/vmlinuz
 cp linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb /mnt/
 cp linux/arch/arm/boot/dts/sun7i-a20-cubietruck.dtb /mnt/

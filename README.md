@@ -33,7 +33,7 @@ These scripts must be run on Ubuntu (they install some packages using `apt-get`)
 
 4. Build the SDcard image:
 
-         $ make cubie.img
+         $ make $BOARD.img
 
    It will need to mount various loopback devices on `/mnt` during this process.
 
@@ -41,9 +41,9 @@ These scripts must be run on Ubuntu (they install some packages using `apt-get`)
 
 ## Linux
 
-1. Copy the `cubie.img` to the SDcard:
+1. Copy the `BOARD.img` to the SDcard, e.g.
 
-        $ dd if=cubie.img of=/dev/mmcblk0
+        $ dd if=cubieboard2.img of=/dev/mmcblk0
 
 ## OS X
 
@@ -59,7 +59,7 @@ These scripts must be run on Ubuntu (they install some packages using `apt-get`)
 
 3. Copy the image:
 
-        sudo dd if=cubie.img of=/dev/rdiskN bs=64k
+        sudo dd if=cubieboard2.img of=/dev/rdiskN bs=64k
 
    Note: Without the 'rdisk' in the output file, the copying will be extremely slow due to buffering.
 
