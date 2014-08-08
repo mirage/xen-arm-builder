@@ -4,6 +4,7 @@ ROOTFS ?= linaro-trusty-developer-20140522-661.tar.gz
 ROOTFSURL ?= http://releases.linaro.org/14.05/ubuntu/trusty-images/developer/
 BOARD ?= cubieboard2
 # BOARD ?= cubietruck
+FIRMWARE ?= rtlwifi
 
 all: 
 	@echo ------
@@ -31,7 +32,7 @@ $(ROOTFS):
 
 ## Build the image file
 ${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
-	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) ./build.sh || (rm -f $@; exit 1)
+	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" ./build.sh || (rm -f $@; exit 1)
 
 ## Make a sparse (smaller) archive of the image file
 %.tar: %.img
