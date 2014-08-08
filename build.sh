@@ -65,6 +65,8 @@ cp ${WRKDIR}/templates/resolv.conf etc/resolv.conf
 cp ${WRKDIR}/templates/hvc0.conf etc/init
 cp --preserve=mode ${WRKDIR}/templates/init.d/1st-boot etc/init.d/
 ln -s ../init.d/1st-boot etc/rcS.d/S10firstboot
+mkdir -p lib/firmware
+cp -av ${WRKDIR}/linux-firmware/rtlwifi lib/firmware
 
 # Prevent services from starting while we build the image
 echo 'exit 101' > usr/sbin/policy-rc.d
