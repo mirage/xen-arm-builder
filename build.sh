@@ -78,7 +78,7 @@ mount -o bind /proc /mnt/proc
 mount -o bind /dev /mnt/dev
 
 chroot /mnt apt-get -y update
-chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns --no-install-recommends
+chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
 
 rm usr/sbin/policy-rc.d
 
