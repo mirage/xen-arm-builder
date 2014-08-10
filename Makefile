@@ -7,11 +7,15 @@ BOARD ?= cubieboard2
 
 all: 
 	@echo ------
+	@echo "BOARD can be: cubieboard2 (default) or cubietruck"
+	@echo ""
+	@echo "export BOARD=cubieboard2"
+	@echo "# select which board you want to build an image for."
 	@echo "make clone"
 	@echo "# will fetch repositories or pull"
 	@echo "make build"
 	@echo "# will build xen, u-boot and linux dom0"
-	@echo "make cubie.tar"
+	@echo "make $${BOARD}.tar"
 	@echo "# gives you a sparse tarfile of the image"
 	@echo ------
 
