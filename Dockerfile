@@ -5,4 +5,3 @@ ADD . /build
 WORKDIR /build
 RUN make clone
 RUN make build
-RUN make cubieboard2.img
