@@ -44,3 +44,4 @@ ${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
 
 clean:
 	rm -f cubie*.img boot/boot.*.scr
+	cd u-boot-sunxi && $(MAKE) mrproper
