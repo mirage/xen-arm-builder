@@ -100,3 +100,27 @@ You should now be able to use Xen via the `xl` command:
     $ xl list
     Name                                        ID   Mem VCPUs      State   Time(s)
     Domain-0                                     0   512     2     r-----     171.7
+
+# Adding device drivers
+
+To add drivers to the supplied Linux kernel, first clone and install the default configuration:
+
+	$ make clone
+
+After cloning, the Linux kernel is in a folder called 'linux' and the default configuration file from the 'config/' folder has been copied to 'linux/.config'.
+
+You can now configure the kernel, for example by using menuconfig:
+
+	$ cd linux
+	$ make clean
+	$ make menuconfig
+
+When you are happy with the configuration you may copy 'linux/.config' back to 'config/' to make sure that it is not overwritten later by 'make clone'.
+
+If the drivers you have enabled need binary firmware, add the name of the firmware file (or folder) to the FIRMWARE-variable in the Makefile. Alternatively, you can set the FIRMWARE environment variable before calling 'make':
+
+	$ export FIRMWARE=rtlwifi
+
+The specified firmware will be copied from 'linux-firmware/' to '/lib/firmware' on the final image.
+
+You should now be able to build the new image with the updated kernel and firmware with "make build" and "make $BOARD.img". 

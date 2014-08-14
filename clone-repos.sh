@@ -29,6 +29,14 @@ else
   cd ..
 fi
 
+if [ ! -d linux-firmware ]; then
+  clone_branch https://git.kernel.org/pub/scm/linux/kernel/git/firmware linux-firmware master
+else
+  cd linux-firmware
+  git pull --ff-only https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git master
+  cd ..
+fi
+
 if [ ! -d xen ]; then
   #clone_branch git://xenbits.xen.org xen stable-4.4
   clone_branch https://github.com/talex5 xen stable-4.4
@@ -38,3 +46,4 @@ else
   git pull --ff-only https://github.com/talex5/xen.git stable-4.4
   cd ..
 fi
+

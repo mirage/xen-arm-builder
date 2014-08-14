@@ -1,0 +1,8 @@
+linaro-*.tar.gz
+linux-firmware/
+linux/
+u-boot-sunxi/
+xen/
+boot/
+linux-arm-modules/
+*.img
