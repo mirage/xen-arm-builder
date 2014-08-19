@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This scripts creates a guest partition and bootstraps it with Debian. Must be run in dom0 on the host.
+# This scripts creates a guest partition and bootstraps it with Ubuntu. Must be run as root in dom0 on the host.
 # Originally based on instructions from http://openmirage.org/wiki/xen-on-cubieboard2
 
 # Exit on unset variables, errors
