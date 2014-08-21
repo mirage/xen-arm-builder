@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/arm 3.16.0-rc7 Kernel Configuration
+# Linux/arm 3.16.0 Kernel Configuration
 #
 CONFIG_ARM=y
 CONFIG_ARM_HAS_SG_CHAIN=y
@@ -1713,10 +1713,12 @@ CONFIG_BRCMFMAC_SDIO=y
 # CONFIG_BRCMDBG is not set
 # CONFIG_HOSTAP is not set
 # CONFIG_IPW2100 is not set
+# CONFIG_IPW2200 is not set
 # CONFIG_IWLWIFI is not set
 # CONFIG_IWL4965 is not set
 # CONFIG_IWL3945 is not set
 # CONFIG_LIBERTAS is not set
+# CONFIG_HERMES is not set
 # CONFIG_P54_COMMON is not set
 CONFIG_RT2X00=m
 # CONFIG_RT2400PCI is not set
