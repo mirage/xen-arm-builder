@@ -25,9 +25,18 @@ if [ ! -d linux ]; then
   clone_branch https://github.com/talex5 linux master
 else
   cd linux
+  git reset HEAD --hard
+  rm -rf drivers/block/blktap2 include/linux/blktap.h
   git pull --ff-only https://github.com/talex5/linux.git master
   cd ..
 fi
+
+cd linux
+for i in ../patches/linux*.patch
+do
+  patch -p1 < $i
+done
+cd ..
 
 if [ ! -d linux-firmware ]; then
   clone_branch https://git.kernel.org/pub/scm/linux/kernel/git/firmware linux-firmware master
