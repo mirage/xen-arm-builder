@@ -12,7 +12,7 @@ setenv fdt_high      0xffffffff # Load fdt in place instead of relocating
 
 # Load xen/xen to ${xen_addr_r}.
 fatload mmc 0 ${xen_addr_r} /xen
-setenv bootargs "console=dtuart dtuart=/soc@01c00000/serial@01c28000 dom0_mem=512M"
+setenv bootargs "console=dtuart dtuart=/soc@01c00000/serial@01c28000 dom0_mem=512M,max:512M"
 
 # Load appropriate .dtb file to ${fdt_addr}
 fatload mmc 0 ${fdt_addr} /sun7i-a20-cubietruck.dtb
