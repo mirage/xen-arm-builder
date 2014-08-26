@@ -70,6 +70,12 @@ for f in ${FIRMWARE}; do
 	cp -av "${WRKDIR}/linux-firmware/$f" lib/firmware
 done
 
+# Copy kernel to dom0 so it can be used in guests
+cp ${WRKDIR}/linux/arch/arm/boot/zImage /mnt/root/dom0_kernel 
+# Copy example scripts to /root
+cp -av ${WRKDIR}/templates/scripts /mnt/root
+
+
 # Prevent services from starting while we build the image
 echo 'exit 101' > usr/sbin/policy-rc.d
 chmod a+x usr/sbin/policy-rc.d
