@@ -4,7 +4,7 @@
 # sudo apt-get install kpartx sfdisk curl
 IMG=${BOARD}.img
 rm -f $IMG
-qemu-img create $IMG 1G
+qemu-img create $IMG 2G
 parted ${IMG} --script -- mklabel msdos
 parted ${IMG} --script -- mkpart primary fat32 2048s 264191s
 parted ${IMG} --script -- mkpart primary ext4 264192s -1s
@@ -87,6 +87,7 @@ chroot /mnt apt-get -y update
 chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
 chroot /mnt apt-get -y install uuid-dev libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libxen-dev libgnutls-dev --no-install-recommends
+chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 --no-install-recommends
 
 rm usr/sbin/policy-rc.d
 
