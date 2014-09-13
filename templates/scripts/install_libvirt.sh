@@ -1,15 +1,9 @@
 LIBVIRT_FILE="libvirt.tar.gz"
 LIBVIRT_URL="http://libvirt.org/sources/libvirt-1.2.8.tar.gz"
 
-cleanup() {
-	rm -f $LIBVIRT_FILE
-	echo Exiting
-}
-
-trap cleanup EXIT
-
 if [ ! -e "$LIBVIRT_FILE" ]; then
-	wget $LIBVIRT_URL -O $LIBVIRT_FILE
+	echo "Downloading $LIBVIRT_URL (to $LIBVIRT_FILE)"
+	curl $LIBVIRT_URL '-L#o' $LIBVIRT_FILE
 fi
 
 mkdir libvirt
@@ -33,3 +27,5 @@ if [ ! -e "/etc/init.d/libvirt-bin" ]; then
 fi
 
 sudo service libvirt-bin start
+
+echo "Reboot to enable libvirt-bin"
