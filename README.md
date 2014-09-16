@@ -7,10 +7,10 @@ The scripts in this repository provide an easy way to set up Xen on a Cubieboard
 
 # Pre-built binaries
 
-To save time, you can download pre-build images from here:
+To save time and the need to install Ubuntu, you can download pre-built SDcard images from here:
 
-* http://blobs.openmirage.org/cubieboard2-xen-iso.tar.bz2 (Cubieboard 2)
-* http://blobs.openmirage.org/cubietruck-xen-iso.tar.bz2 (CubieTruck)
+* http://blobs.openmirage.org/cubieboard2.tar (Cubieboard 2)
+* http://blobs.openmirage.org/cubietruck.tar (CubieTruck)
 
 # Building from source
 
