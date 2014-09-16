@@ -71,7 +71,7 @@ for f in ${FIRMWARE}; do
 done
 
 # Copy kernel to dom0 so it can be used in guests
-cp ${WRKDIR}/linux/arch/arm/boot/zImage /mnt/root/dom0_kernel 
+cp ${WRKDIR}/linux/arch/arm/boot/zImage /mnt/root/dom0_kernel
 # Copy example scripts to /root
 cp -av ${WRKDIR}/templates/scripts /mnt/root
 
@@ -84,7 +84,7 @@ mount -o bind /proc /mnt/proc
 mount -o bind /dev /mnt/dev
 
 chroot /mnt apt-get -y update
-chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
+chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends libxen-dev
 
 rm usr/sbin/policy-rc.d
 
@@ -98,3 +98,9 @@ echo $BOARD > etc/hostname
 chroot /mnt userdel -r linaro
 chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
+
+# OPAM init
+git clone https://github.com/ocaml/opam-repository.git git/opam-repository
+opam init git/opam-repository -y
+opam repo add mirage https://github.com/mirage/mirage-dev.git
+opam update # due to a bug in 1.1.1 (fixed in 1.2)
