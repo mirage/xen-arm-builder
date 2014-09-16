@@ -71,7 +71,7 @@ for f in ${FIRMWARE}; do
 done
 
 # Copy kernel to dom0 so it can be used in guests
-cp ${WRKDIR}/linux/arch/arm/boot/zImage /mnt/root/dom0_kernel 
+cp ${WRKDIR}/linux/arch/arm/boot/zImage /mnt/root/dom0_kernel
 # Copy example scripts to /root
 cp -av ${WRKDIR}/templates/scripts /mnt/root
 
@@ -98,3 +98,9 @@ echo $BOARD > etc/hostname
 chroot /mnt userdel -r linaro
 chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
+
+# OPAM init
+git clone https://github.com/ocaml/opam-repository.git git/opam-repository
+opam init git/opam-repository -y
+opam repo add mirage https://github.com/mirage/mirage-dev.git
+opam update # due to a bug in 1.1.1 (fixed in 1.2)
