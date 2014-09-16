@@ -104,9 +104,9 @@ chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password 
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
 
 # Xen fixes
-chroot /mnt mkdir -p /usr/include/arch-arm/hvm
-chroot /mnt touch /usr/include/arch-arm/hvm/save.h
-chroot /mnt patch -p1 < xen.patch
+chroot /mnt mkdir -p /usr/include/xen/arch-arm/hvm
+chroot /mnt touch /usr/include/xen/arch-arm/hvm/save.h
+chroot /mnt patch -p1 < patches/xen.patch
 
 # OPAM init
 OPAM_ROOT=/home/mirage/.opam

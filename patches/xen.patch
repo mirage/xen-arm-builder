@@ -1,7 +1,7 @@
 diff --git /etc/init.d/xen /etc/init.d/xen
 index b903877..7ffcd2f 100755
---- a/xen
-+++ b/xen
+--- /etc/init.d/xen
++++ /etc/init.d/xen
 @@ -43,6 +43,7 @@ modules_setup()
    modprobe xenfs 2>/dev/null
    modprobe xen-evtchn 2>/dev/null
