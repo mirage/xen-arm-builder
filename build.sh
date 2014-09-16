@@ -86,9 +86,9 @@ mount -o bind /dev /mnt/dev
 chroot /mnt apt-get -y update
 chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
-chroot /mnt apt-get -y install uuid-dev libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libxen-dev libgnutls-dev --no-install-recommends
+chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
 chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
-chroot /mnt apt-get -y install libxen-dev --no-install-recommends
+chroot /mnt apt-get -y install uuid-dev libxen-dev --no-install-recommends
 
 rm usr/sbin/policy-rc.d
 
@@ -103,8 +103,17 @@ chroot /mnt userdel -r linaro
 chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
 
+# Xen fixes
+chroot /mnt mkdir -p /usr/include/xen/arch-arm/hvm
+chroot /mnt touch /usr/include/xen/arch-arm/hvm/save.h
+chroot /mnt patch -p1 < patches/xen.patch
+
 # OPAM init
-git clone https://github.com/ocaml/opam-repository.git git/opam-repository
-opam init git/opam-repository -y
-opam repo add mirage https://github.com/mirage/mirage-dev.git
-opam update # due to a bug in 1.1.1 (fixed in 1.2)
+OPAM_ROOT=/home/mirage/.opam
+OPAM_REPO=/home/mirage/git/opam-repository
+chroot /mnt git clone https://github.com/ocaml/opam-repository.git ${OPAM_REPO}
+chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
+chroot /mnt opam repo add mirage https://github.com/mirage/mirage-dev.git --root=${OPAM_ROOT}
+chroot /mnt opam update --root=${OPAM_ROOT} # due to a bug in 1.1.1 (fixed in 1.2)
+chroot /mnt chown -R mirage ${OPAM_ROOT}
+chroot /mnt chown -R mirage ${OPAM_REPO}
