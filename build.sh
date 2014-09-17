@@ -106,14 +106,14 @@ sed -i "s/linaro-developer/$BOARD/" etc/hosts
 # Xen fixes
 chroot /mnt mkdir -p /usr/include/xen/arch-arm/hvm
 chroot /mnt touch /usr/include/xen/arch-arm/hvm/save.h
-chroot /mnt patch -p1 < patches/xen.patch
+sed -i '/modprobe xen-gntdev/a modprobe xen-gntalloc' /mnt/etc/init.d/xen
 
 # OPAM init
 OPAM_ROOT=/home/mirage/.opam
 OPAM_REPO=/home/mirage/git/opam-repository
-chroot /mnt git clone https://github.com/ocaml/opam-repository.git ${OPAM_REPO}
-chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
-chroot /mnt opam repo add mirage https://github.com/mirage/mirage-dev.git --root=${OPAM_ROOT}
-chroot /mnt opam update --root=${OPAM_ROOT} # due to a bug in 1.1.1 (fixed in 1.2)
-chroot /mnt chown -R mirage ${OPAM_ROOT}
+git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
 chroot /mnt chown -R mirage ${OPAM_REPO}
+chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
+# chroot /mnt opam repo add mirage https://github.com/mirage/mirage-dev.git --root=${OPAM_ROOT}
+# chroot /mnt opam update --root=${OPAM_ROOT} # due to a bug in 1.1.1 (fixed in 1.2)
+chroot /mnt chown -R mirage ${OPAM_ROOT}
