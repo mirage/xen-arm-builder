@@ -88,7 +88,7 @@ chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
 chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
 chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
-chroot /mnt apt-get -y install uuid-dev libxen-dev --no-install-recommends
+chroot /mnt apt-get -y install uuid-dev libxen-dev software-properties-common --no-install-recommends
 
 rm usr/sbin/policy-rc.d
 
