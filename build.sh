@@ -116,4 +116,4 @@ chroot /mnt chown -R mirage ${OPAM_REPO}
 chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
 # chroot /mnt opam repo add mirage https://github.com/mirage/mirage-dev.git --root=${OPAM_ROOT}
 # chroot /mnt opam update --root=${OPAM_ROOT} # due to a bug in 1.1.1 (fixed in 1.2)
-chroot /mnt chown -R mirage /mnt/home/mirage
+chroot /mnt chown -R mirage /home/mirage
