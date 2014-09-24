@@ -39,7 +39,7 @@ finish () {
 trap finish EXIT
 
 MLOOPDEV=`echo $LOOPDEV | sed -e 's,/dev/,/dev/mapper/,g'`
-kpartx -a ${LOOPDEV}
+kpartx -avs ${LOOPDEV}
 mkfs.vfat ${MLOOPDEV}p1
 mkfs.ext4 ${MLOOPDEV}p2
 
