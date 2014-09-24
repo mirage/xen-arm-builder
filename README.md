@@ -14,24 +14,32 @@ To save time and the need to install Ubuntu, you can download pre-built SDcard i
 
 # Building from source
 
-These scripts must be run on Ubuntu (they install some packages using `apt-get`).
+These scripts must be run on Ubuntu or Debian (they install some
+packages using `apt-get`).
 
 1. Select your board (`cubieboard2` or `cubietruck`):
 
          $ export BOARD=cubieboard2
 
-2. Download the dependencies (this will clone all the relevant repositories):
+2. On Debian, follow the [sunxi](http://linux-sunxi.org/Toolchain)
+toolchain instructions to install the **emdebian-archive-keyring**
+package and the emdebian.org apt source.
+
+3. Download the dependencies (this will clone all the relevant repositories):
 
          $ make clone
 
-3. Build U-Boot, Xen and Linux:
+4. On Debian, symlink the GCC 4.7 cross-compilers into your `$PATH` as
+described on the [sunxi](http://linux-sunxi.org/Toolchain) site.
+
+5. Build U-Boot, Xen and Linux:
 
          $ make build
 
     You may get prompted about extra configuration options at this point.
     You can probably just press Return to accept the default for each one.
 
-4. Build the SDcard image:
+6. Build the SDcard image:
 
          $ make $BOARD.img
 
