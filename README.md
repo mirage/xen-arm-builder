@@ -81,7 +81,13 @@ supports mDNS/avahi/zeroconf):
     $ ssh mirage@cubieboard2.local.
 
 The password is `mirage`.
-Install your SSH public key and change login password (or lock the account with `sudo passwd -l mirage`).
+
+Install your SSH public key and change login password (or lock the
+account with `sudo passwd -l mirage`).
+
+If you plan on connecting to TLS-secured services, don't forget to set
+the system time so that certificate validity windows work correctly (not
+many TLS certificates were valid in 1970).
 
 # Using Xen
 
