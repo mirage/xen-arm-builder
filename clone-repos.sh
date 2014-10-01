@@ -1,7 +1,16 @@
 #!/bin/sh -ex
 # Clone github repos, and pull to refresh them if they exist
 
-sudo apt-get -y install rsync git gcc-arm-linux-gnueabihf build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools
+! grep "NAME=\"Debian" /etc/os-release > /dev/null
+NOT_DEBIAN=$?
+
+if [ $NOT_DEBIAN = 0 ]; then
+    GCC=gcc-arm-linux-gnueabihf
+else
+    GCC=gcc-4.7-arm-linux-gnueabihf
+fi
+
+sudo apt-get -y install rsync git $GCC build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools
 
 clone_branch () {
   git clone ${1}/${2}.git
