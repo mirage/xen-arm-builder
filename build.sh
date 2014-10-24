@@ -83,6 +83,10 @@ chmod a+x usr/sbin/policy-rc.d
 mount -o bind /proc /mnt/proc
 mount -o bind /dev /mnt/dev
 
+echo "deb http://ppa.launchpad.net/avsm/ocaml41+opam12/ubuntu trusty main" > /mnt/etc/apt/sources.list.d/ppa-opam.list
+chown root /mnt/etc/apt/sources.list.d/ppa-opam.list
+
+chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
 chroot /mnt apt-get -y update
 chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
