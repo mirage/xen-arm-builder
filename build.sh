@@ -87,12 +87,19 @@ echo "deb http://ppa.launchpad.net/avsm/ocaml41+opam12/ubuntu trusty main" > /mn
 chown root /mnt/etc/apt/sources.list.d/ppa-opam.list
 
 chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
+
+echo "deb http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe 
+deb-src http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe
+deb http://ports.ubuntu.com/ubuntu-ports/ trusty-security main universe
+deb-src http://ports.ubuntu.com/ubuntu-ports/ trusty-security main universe" | chroot /mnt tee -a /etc/apt/sources.list > /dev/null
+
 chroot /mnt apt-get -y update
 chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
 chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
 chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 traceroute man-db --no-install-recommends
 chroot /mnt apt-get -y install uuid-dev libxen-dev software-properties-common --no-install-recommends
+chroot /mnt apt-get -y clean
 
 rm usr/sbin/policy-rc.d
 
