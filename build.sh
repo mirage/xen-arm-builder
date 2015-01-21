@@ -87,12 +87,19 @@ echo "deb http://ppa.launchpad.net/avsm/ocaml41+opam12/ubuntu trusty main" > /mn
 chown root /mnt/etc/apt/sources.list.d/ppa-opam.list
 
 chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
+
+echo "deb http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe 
+deb-src http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe
+deb http://ports.ubuntu.com/ubuntu-ports/ trusty-security main universe
+deb-src http://ports.ubuntu.com/ubuntu-ports/ trusty-security main universe" | chroot /mnt tee -a /etc/apt/sources.list > /dev/null
+
 chroot /mnt apt-get -y update
 chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
 chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
-chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
+chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 traceroute man-db --no-install-recommends
 chroot /mnt apt-get -y install uuid-dev libxen-dev software-properties-common --no-install-recommends
+chroot /mnt apt-get -y clean
 
 rm usr/sbin/policy-rc.d
 
@@ -112,12 +119,13 @@ chroot /mnt mkdir -p /usr/include/xen/arch-arm/hvm
 chroot /mnt touch /usr/include/xen/arch-arm/hvm/save.h
 sed -i '/modprobe xen-gntdev/a modprobe xen-gntalloc' /mnt/etc/init.d/xen
 
-# OPAM init
-OPAM_ROOT=/home/mirage/.opam
-OPAM_REPO=/home/mirage/git/opam-repository
-git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
-chroot /mnt chown -R mirage ${OPAM_REPO}
-chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
+# OPAM init - disabled for now
+#OPAM_ROOT=/home/mirage/.opam
+#OPAM_REPO=/home/mirage/git/opam-repository
+#git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
+#chroot /mnt chown -R mirage ${OPAM_REPO}
+#chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
+
 # chroot /mnt opam repo add mirage https://github.com/mirage/mirage-dev.git --root=${OPAM_ROOT}
 # chroot /mnt opam update --root=${OPAM_ROOT} # due to a bug in 1.1.1 (fixed in 1.2)
 chroot /mnt chown -R mirage /home/mirage
