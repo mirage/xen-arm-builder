@@ -93,7 +93,7 @@ many TLS certificates were valid in 1970).
 
 You should now be able to use Xen via the `xl` command:
 
-    $ xl list
+    $ sudo xl list
     Name                                        ID   Mem VCPUs      State   Time(s)
     Domain-0                                     0   512     2     r-----     171.7
 
