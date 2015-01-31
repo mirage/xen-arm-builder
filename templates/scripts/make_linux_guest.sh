@@ -42,7 +42,7 @@ name = "linux-guest-1"
 vcpus = 2
 serial="pty"
 disk = [ "phy:/dev/vg0/linux-guest-1,xvda,w" ]
-vif = ["bridge=br0"]
+vif = ["bridge=xenbr0"]
 extra = "console=hvc0 xencons=tty root=/dev/xvda"' > linux-guest-1.conf
 
 echo "Done!"
