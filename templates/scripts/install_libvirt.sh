@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# This script downloads and installs libvirt with Xen-support enabled. 
+# Originally based on instructions from http://openmirage.org/wiki/libvirt-on-cubieboard
+
 LIBVIRT_FILE="libvirt.tar.gz"
 LIBVIRT_URL="http://libvirt.org/sources/libvirt-1.2.8.tar.gz"
 
@@ -17,15 +22,19 @@ cd .. && \
 rm -rf libvirt
 
 if [ ! -e "/etc/default/libvirt-bin" ]; then
-	sudo cp templates/libvirt-bin.default /etc/default/libvirt-bin
+	echo 'start_libvirtd="yes"
+libvirtd_opts="-d"' > /etc/default/libvirt-bin
 fi
 
-if [ ! -e "/etc/init.d/libvirt-bin" ]; then
-	sudo cp templates/libvirt-bin.rc /etc/init.d/libvirt-bin && \
-	sudo chmod +x /etc/init.d/libvirt-bin && \
-	sudo update-rc.d libvirt-bin defaults
+if [ ! -e "/etc/init/libvirtd.conf" ]; then
+	if [ -e "/etc/event.d/libvirtd" ]; then # libvirtd 1.2.8 installs its upstart script here
+		echo "libvirtd upstart config installed in /etc/event.d, moving to /etc/init"
+		sudo mv -v /etc/event.d/libvirtd /etc/init/libvirtd.conf
+	else
+		echo "Unable to add libvirtd to upstart, startup script not found. You may have to configure it manually."
+	fi
 fi
 
-sudo service libvirt-bin start
+sudo start libvirtd
 
-echo "Reboot to enable libvirt-bin"
+echo "Reboot to enable libvirtd"
