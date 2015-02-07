@@ -97,6 +97,11 @@ You should now be able to use Xen via the `xl` command:
     Name                                        ID   Mem VCPUs      State   Time(s)
     Domain-0                                     0   512     2     r-----     171.7
 
+# Installing libvirt w/Xen support
+
+The libvirt-package in Ubuntu does not have Xen support enabled by default. To download and install libvirt automatically, run `sudo /root/scripts/install_libvirt.sh`. This script compiles libvirt with Xen support and configures libvirtd to listen to a Unix socket. If you need access to libvirtd over TCP, further instructions are available [here](http://openmirage.org/wiki/libvirt-on-cubieboard).
+
+
 # Adding device drivers
 
 To add drivers to the supplied Linux kernel, first clone and install the default configuration:
