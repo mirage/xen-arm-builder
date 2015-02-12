@@ -86,6 +86,9 @@ mount -o bind /dev /mnt/dev
 echo "deb http://ppa.launchpad.net/avsm/ocaml41+opam12/ubuntu trusty main" > /mnt/etc/apt/sources.list.d/ppa-opam.list
 chown root /mnt/etc/apt/sources.list.d/ppa-opam.list
 
+echo "deb http://xenbits.xenproject.org/djs/linaro-xapi-4-4-talex5 ./" > /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
+chown root /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
+
 chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
 
 echo "deb http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe 
@@ -99,6 +102,9 @@ chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp
 chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
 chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 traceroute man-db --no-install-recommends
 chroot /mnt apt-get -y install uuid-dev libxen-dev software-properties-common --no-install-recommends
+
+chroot /mnt apt-get -y install xenserver-core thin-provisioning-tools
+
 chroot /mnt apt-get -y clean
 
 rm usr/sbin/policy-rc.d
@@ -112,6 +118,8 @@ echo $BOARD > etc/hostname
 # Mirage user
 chroot /mnt userdel -r linaro
 chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
+mkdir -p /mnt/home/mirage
+cp ${WRKDIR}/templates/dot-xe /mnt/home/mirage/.xe
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
 
 # Xen fixes
