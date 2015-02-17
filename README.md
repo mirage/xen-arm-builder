@@ -125,3 +125,14 @@ If the drivers you have enabled need binary firmware, add the name of the firmwa
 The specified firmware will be copied from 'linux-firmware/' to '/lib/firmware' on the final image.
 
 You should now be able to build the new image with the updated kernel and firmware with "make build" and "make $BOARD.img".
+
+## How to Contribute
+
+You are welcome to clone this repository and send us back pull
+requests. You can find more documentation on <http://openmirage.org>.
+
+## License
+
+All the scripts and metadata contained in this repository are licensed under the
+[CC0 1.0 Universal](http://creativecommons.org/publicdomain/zero/1.0/)
+license.
