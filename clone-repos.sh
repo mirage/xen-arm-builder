@@ -1,7 +1,16 @@
 #!/bin/sh -ex
 # Clone github repos, and pull to refresh them if they exist
 
-sudo apt-get -y install rsync git gcc-arm-linux-gnueabihf build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools
+! grep "NAME=\"Debian" /etc/os-release > /dev/null
+NOT_DEBIAN=$?
+
+if [ $NOT_DEBIAN = 0 ]; then
+    GCC=gcc-arm-linux-gnueabihf
+else
+    GCC=gcc-4.7-arm-linux-gnueabihf
+fi
+
+sudo apt-get -y install rsync git $GCC build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools
 
 clone_branch () {
   git clone ${1}/${2}.git
@@ -25,9 +34,18 @@ if [ ! -d linux ]; then
   clone_branch https://github.com/talex5 linux master
 else
   cd linux
+  git reset HEAD --hard
+  rm -rf drivers/block/blktap2 include/linux/blktap.h
   git pull --ff-only https://github.com/talex5/linux.git master
   cd ..
 fi
+
+cd linux
+for i in ../patches/linux*.patch
+do
+  patch -p1 < $i
+done
+cd ..
 
 if [ ! -d linux-firmware ]; then
   clone_branch https://git.kernel.org/pub/scm/linux/kernel/git/firmware linux-firmware master

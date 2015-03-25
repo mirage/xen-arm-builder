@@ -7,31 +7,39 @@ The scripts in this repository provide an easy way to set up Xen on a Cubieboard
 
 # Pre-built binaries
 
-To save time, you can download pre-build images from here:
+To save time and the need to install Ubuntu, you can download pre-built SDcard images from here:
 
-* http://blobs.openmirage.org/cubieboard2-xen-iso.tar.bz2 (Cubieboard 2)
-* http://blobs.openmirage.org/cubietruck-xen-iso.tar.bz2 (CubieTruck)
+* http://blobs.openmirage.org/cubieboard2.tar (Cubieboard 2)
+* http://blobs.openmirage.org/cubietruck.tar (CubieTruck)
 
 # Building from source
 
-These scripts must be run on Ubuntu (they install some packages using `apt-get`).
+These scripts must be run on Ubuntu or Debian (they install some
+packages using `apt-get`).
 
 1. Select your board (`cubieboard2` or `cubietruck`):
 
          $ export BOARD=cubieboard2
 
-2. Download the dependencies (this will clone all the relevant repositories):
+2. On Debian, follow the [sunxi](http://linux-sunxi.org/Toolchain)
+toolchain instructions to install the **emdebian-archive-keyring**
+package and the emdebian.org apt source.
+
+3. Download the dependencies (this will clone all the relevant repositories):
 
          $ make clone
 
-3. Build U-Boot, Xen and Linux:
+4. On Debian, symlink the GCC 4.7 cross-compilers into your `$PATH` as
+described on the [sunxi](http://linux-sunxi.org/Toolchain) site.
+
+5. Build U-Boot, Xen and Linux:
 
          $ make build
 
     You may get prompted about extra configuration options at this point.
     You can probably just press Return to accept the default for each one.
 
-4. Build the SDcard image:
+6. Build the SDcard image:
 
          $ make $BOARD.img
 
@@ -73,33 +81,26 @@ supports mDNS/avahi/zeroconf):
     $ ssh mirage@cubieboard2.local.
 
 The password is `mirage`.
-Install your SSH public key and change login password (or lock the account with `sudo passwd -l mirage`).
 
+Install your SSH public key and change login password (or lock the
+account with `sudo passwd -l mirage`).
 
-# Guest disks
-
-The default image has an LVM partition on `mmcblk0p3`, but it's quite small so you may prefer to delete it and create a new one that fills the disk.
-You can use `cfdisk` for this, then use `vgcreate` to create a volume group from the new partition:
-
-    root@cubieboard2:~# lsblk
-    NAME        MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-    mmcblk0     179:0    0  14.7G  0 disk
-    ├─mmcblk0p1 179:1    0   128M  0 part
-    ├─mmcblk0p2 179:2    0     3G  0 part /
-    └─mmcblk0p3 179:3    0  11.5G  0 part
-    
-    root@cubieboard2:~# vgcreate vg0 /dev/mmcblk0p3
-      No physical volume label read from /dev/mmcblk0p3
-      Physical volume "/dev/mmcblk0p3" successfully created
-      Volume group "vg0" successfully created
+If you plan on connecting to TLS-secured services, don't forget to set
+the system time so that certificate validity windows work correctly (not
+many TLS certificates were valid in 1970).
 
 # Using Xen
 
 You should now be able to use Xen via the `xl` command:
 
-    $ xl list
+    $ sudo xl list
     Name                                        ID   Mem VCPUs      State   Time(s)
     Domain-0                                     0   512     2     r-----     171.7
+
+# Installing libvirt w/Xen support
+
+The libvirt-package in Ubuntu does not have Xen support enabled by default. To download and install libvirt automatically, run `sudo /root/scripts/install_libvirt.sh`. This script compiles libvirt with Xen support and configures libvirtd to listen to a Unix socket. If you need access to libvirtd over TCP, further instructions are available [here](http://openmirage.org/wiki/libvirt-on-cubieboard).
+
 
 # Adding device drivers
 
@@ -123,4 +124,15 @@ If the drivers you have enabled need binary firmware, add the name of the firmwa
 
 The specified firmware will be copied from 'linux-firmware/' to '/lib/firmware' on the final image.
 
-You should now be able to build the new image with the updated kernel and firmware with "make build" and "make $BOARD.img". 
+You should now be able to build the new image with the updated kernel and firmware with "make build" and "make $BOARD.img".
+
+## How to Contribute
+
+You are welcome to clone this repository and send us back pull
+requests. You can find more documentation on <http://openmirage.org>.
+
+## License
+
+All the scripts and metadata contained in this repository are licensed under the
+[CC0 1.0 Universal](http://creativecommons.org/publicdomain/zero/1.0/)
+license.

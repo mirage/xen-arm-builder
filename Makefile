@@ -38,10 +38,15 @@ $(ROOTFS):
 ${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
 	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" ./build.sh || (rm -f $@; exit 1)
 
-## Make a sparse (smaller) archive of the image file
+## Make a sparse (smaller, but source must be read twice) archive of the image file
 %.tar: %.img
 	rm -f $@
 	tar -Scf $@ $<
+
+## Make a sparse and compressed archive of the image file
+%.tar.gz: %.img
+	rm -f $@
+	tar -Szcf $@ $<
 
 ## Generate the u-boot boot commands script
 %.scr: %.cmd

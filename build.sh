@@ -4,7 +4,7 @@
 # sudo apt-get install kpartx sfdisk curl
 IMG=${BOARD}.img
 rm -f $IMG
-qemu-img create $IMG 1G
+qemu-img create $IMG 2G
 parted ${IMG} --script -- mklabel msdos
 parted ${IMG} --script -- mkpart primary fat32 2048s 264191s
 parted ${IMG} --script -- mkpart primary ext4 264192s -1s
@@ -39,7 +39,7 @@ finish () {
 trap finish EXIT
 
 MLOOPDEV=`echo $LOOPDEV | sed -e 's,/dev/,/dev/mapper/,g'`
-kpartx -a ${LOOPDEV}
+kpartx -avs ${LOOPDEV}
 mkfs.vfat ${MLOOPDEV}p1
 mkfs.ext4 ${MLOOPDEV}p2
 
@@ -70,6 +70,12 @@ for f in ${FIRMWARE}; do
 	cp -av "${WRKDIR}/linux-firmware/$f" lib/firmware
 done
 
+# Copy kernel to dom0 so it can be used in guests
+cp ${WRKDIR}/linux/arch/arm/boot/zImage /mnt/root/dom0_kernel
+# Copy example scripts to /root
+cp -av ${WRKDIR}/templates/scripts /mnt/root
+
+
 # Prevent services from starting while we build the image
 echo 'exit 101' > usr/sbin/policy-rc.d
 chmod a+x usr/sbin/policy-rc.d
@@ -77,8 +83,29 @@ chmod a+x usr/sbin/policy-rc.d
 mount -o bind /proc /mnt/proc
 mount -o bind /dev /mnt/dev
 
+echo "deb http://ppa.launchpad.net/avsm/ocaml41+opam12/ubuntu trusty main" > /mnt/etc/apt/sources.list.d/ppa-opam.list
+chown root /mnt/etc/apt/sources.list.d/ppa-opam.list
+
+echo "deb http://xenbits.xenproject.org/djs/linaro-xapi-4-4-talex5 ./" > /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
+chown root /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
+
+chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
+
+echo "deb http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe 
+deb-src http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe
+deb http://ports.ubuntu.com/ubuntu-ports/ trusty-security main universe
+deb-src http://ports.ubuntu.com/ubuntu-ports/ trusty-security main universe" | chroot /mnt tee -a /etc/apt/sources.list > /dev/null
+
 chroot /mnt apt-get -y update
+chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
+chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
+chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 traceroute man-db --no-install-recommends
+chroot /mnt apt-get -y install uuid-dev libxen-dev software-properties-common --no-install-recommends
+
+chroot /mnt apt-get -y install xenserver-core thin-provisioning-tools
+
+chroot /mnt apt-get -y clean
 
 rm usr/sbin/policy-rc.d
 
@@ -91,4 +118,22 @@ echo $BOARD > etc/hostname
 # Mirage user
 chroot /mnt userdel -r linaro
 chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
+mkdir -p /mnt/home/mirage
+cp ${WRKDIR}/templates/dot-xe /mnt/home/mirage/.xe
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
+
+# Xen fixes
+chroot /mnt mkdir -p /usr/include/xen/arch-arm/hvm
+chroot /mnt touch /usr/include/xen/arch-arm/hvm/save.h
+sed -i '/modprobe xen-gntdev/a modprobe xen-gntalloc' /mnt/etc/init.d/xen
+
+# OPAM init - disabled for now
+#OPAM_ROOT=/home/mirage/.opam
+#OPAM_REPO=/home/mirage/git/opam-repository
+#git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
+#chroot /mnt chown -R mirage ${OPAM_REPO}
+#chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
+
+# chroot /mnt opam repo add mirage https://github.com/mirage/mirage-dev.git --root=${OPAM_ROOT}
+# chroot /mnt opam update --root=${OPAM_ROOT} # due to a bug in 1.1.1 (fixed in 1.2)
+chroot /mnt chown -R mirage /home/mirage
