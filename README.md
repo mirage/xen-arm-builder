@@ -87,7 +87,9 @@ account with `sudo passwd -l mirage`).
 
 If you plan on connecting to TLS-secured services, don't forget to set
 the system time so that certificate validity windows work correctly (not
-many TLS certificates were valid in 1970).
+many TLS certificates were valid in 1970). For example:
+
+    $ sudo ntpdate uk.pool.ntp.org
 
 # Using Xen
 
