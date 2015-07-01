@@ -6,3 +6,4 @@ xen/
 boot/
 linux-arm-modules/
 *.img
+*.swp
