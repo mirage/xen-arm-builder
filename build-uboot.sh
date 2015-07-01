@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -eux
 
 case $BOARD in
 cubieboard2) TARG=Cubieboard2_config ;;
