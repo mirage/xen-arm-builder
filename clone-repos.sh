@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/sh -eux
 # Clone github repos, and pull to refresh them if they exist
 # vi:shiftwidth=2
 
@@ -67,7 +67,7 @@ else
   cd ..
 fi
 
-if [ "$BUILD_XEN" = "true" ] ; then
+if $BUILD_XEN ; then
   if [ ! -d xen ]; then
     clone_branch ${XEN_URL} xen ${XEN_BRANCH}
   else
