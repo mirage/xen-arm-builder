@@ -1,4 +1,4 @@
-.PHONY: all build clean dd img kernel menuconfig nothing tar tgz
+.PHONY: all build clean dd img kernel menuconfig tar tgz
 
 BOARD ?= cubieboard2
 # BOARD ?= cubietruck
@@ -18,6 +18,8 @@ all:
 	@echo "# will fetch repositories or pull"
 	@echo "make build"
 	@echo "# will build xen, u-boot and linux dom0"
+	@echo "make img"
+	@echo "# builds the image file"
 	@echo "make tar"
 	@echo "# gives you a sparse tarfile of the image"
 	@echo "make dd"
