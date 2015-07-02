@@ -40,9 +40,10 @@ linux/.config: config/$(KERNELCONFIG)
 	cp config/$(KERNELCONFIG) $@
 
 menuconfig: linux/.config
+	test -f /usr/include/curses.h || sudo apt-get -y install libncurses5-dev
 	$(MAKE) -C linux ARCH=arm menuconfig
 
-build:
+build: linux/.config
 	BOARD=$(BOARD) ./build-uboot.sh
 	$(BUILD_XEN_CMD)
 	./build-linux.sh
@@ -72,6 +73,7 @@ tgz: $(BOARD).tar.gz
 
 dd: $(BOARD).img
 	sudo dd if=$(BOARD).img of=/dev/mmcblk0 bs=4096
+	sudo partprobe /dev/mmcblk0
 
 ## Generate the u-boot boot commands script
 %.scr: %.cmd
