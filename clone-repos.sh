@@ -35,10 +35,10 @@ clone_branch () {
 }
 
 if [ ! -d u-boot-sunxi ]; then
-  clone_branch git://github.com/jwrdegoede u-boot-sunxi sunxi-next
+  git clone git://github.com/linux-sunxi/u-boot-sunxi.git
 else
   cd u-boot-sunxi
-  git pull --ff-only origin sunxi-next
+  git pull --ff-only origin sunxi
   cd ..
 fi
 
