@@ -1,7 +1,7 @@
 linaro-*.tar.gz
 linux-firmware/
 linux/
-u-boot-sunxi/
+u-boot/
 xen/
 boot/
 linux-arm-modules/

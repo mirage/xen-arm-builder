@@ -50,8 +50,8 @@ ${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
 
 ## Generate the u-boot boot commands script
 %.scr: %.cmd
-	./u-boot-sunxi/build-${BOARD}/tools/mkimage -C none -A arm -T script -d "$<" "$@"
+	./u-boot/build-${BOARD}/tools/mkimage -C none -A arm -T script -d "$<" "$@"
 
 clean:
 	rm -f cubie*.img boot/boot.*.scr
-	cd u-boot-sunxi && $(MAKE) mrproper
+	cd u-boot && $(MAKE) mrproper

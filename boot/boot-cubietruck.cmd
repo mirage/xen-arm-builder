@@ -1,14 +1,23 @@
-# SUNXI Xen Boot Script
+# Based on the SUNXI Xen Boot Script
 
-# Addresses suitable for 1GB system, adjust as appropriate for a 2GB system.
-# Top of RAM:         0x80000000
-# Xen relocate addr   0x7fe00000
-setenv kernel_addr_r  0xbf600000 # 8M
-setenv ramdisk_addr_r 0xbee00000 # 8M
-setenv fdt_addr       0xbec00000 # 2M
-setenv xen_addr_r     0xbea00000 # 2M
+# Addresses suitable for 2GB system
 
-setenv fdt_high      0xffffffff # Load fdt in place instead of relocating
+# Top of RAM:         0xc0000000
+# Xen relocate addr   0xbfe00000
+
+setenv fdt_addr       0xaec00000 # 2M
+setenv fdt_high       0xffffffff # Load fdt in place instead of relocating
+
+# Put Xen and Linux in the top half of RAM, or you get
+# "Failed to allocate contiguous memory for dom0" (due to the dom0_mem=512M).
+# These used to be at 0xb... but with the latest U-Boot that makes us hang when
+# loading the vmlinuz (use U-Boot's "bdinfo" to see what's in the way).
+setenv kernel_addr_r  0xaf600000
+setenv xen_addr_r     0xaea00000 # 2M
+
+# sunxi-common.h contains some more useful information:
+# CONFIG_SYS_TEXT_BASE  0x4a000000 - location of U-Boot's code
+# CONFIG_SYS_SDRAM_BASE 0x40000000 - start of RAM
 
 # Load xen/xen to ${xen_addr_r}.
 fatload mmc 0 ${xen_addr_r} /xen
