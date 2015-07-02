@@ -16,12 +16,15 @@ case $DISTROVER in
     LINUX_BRANCH=master
     XEN_URL=https://github.com/talex5
     XEN_BRANCH=stable-4.4
+    APPLY_PATCHES=true
     ;;
   vivid)
     # Doesn't seem to be needed:
     #sudo apt-get -y install qemu-system-common
     LINUX_URL=https://github.com/infidel
     LINUX_BRANCH=cubie-vivid
+    # blktap2 patches don't compile yet with Linux 4.1
+    APPLY_PATCHES=false
     ;;
 esac
 
@@ -52,12 +55,14 @@ else
   cd ..
 fi
 
-cd linux
-for i in ../patches/linux*.patch
-do
-  patch -p1 < $i
-done
-cd ..
+if $APPLY_PATCHES ; then
+  cd linux
+  for i in ../patches/linux*.patch
+  do
+    patch -p1 < $i
+  done
+  cd ..
+fi
 
 if [ ! -d linux-firmware ]; then
   clone_branch https://git.kernel.org/pub/scm/linux/kernel/git/firmware linux-firmware master
