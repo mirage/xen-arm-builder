@@ -1,16 +1,29 @@
 #!/bin/sh -ex
 # Clone github repos, and pull to refresh them if they exist
+# vi:shiftwidth=2
 
-! grep "NAME=\"Debian" /etc/os-release > /dev/null
-NOT_DEBIAN=$?
-
-if [ $NOT_DEBIAN = 0 ]; then
-    GCC=gcc-arm-linux-gnueabihf
-else
+if grep -q "NAME=\"Debian" /etc/os-release ; then
     GCC=gcc-4.7-arm-linux-gnueabihf
+else
+    GCC=gcc-arm-linux-gnueabihf
 fi
 
-sudo apt-get -y install rsync git $GCC build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools
+sudo apt-get -y install rsync git $GCC build-essential kpartx binfmt-support python bc parted dosfstools
+case $DISTROVER in
+  trusty)
+    sudo apt-get -y install qemu qemu-user-static
+    LINUX_URL=https://github.com/talex5
+    LINUX_BRANCH=master
+    XEN_URL=https://github.com/talex5
+    XEN_BRANCH=stable-4.4
+    ;;
+  vivid)
+    # Doesn't seem to be needed:
+    #sudo apt-get -y install qemu-system-common
+    LINUX_URL=https://github.com/infidel
+    LINUX_BRANCH=cubie-vivid
+    ;;
+esac
 
 clone_branch () {
   git clone ${1}/${2}.git
@@ -30,13 +43,12 @@ else
 fi
 
 if [ ! -d linux ]; then
-  #clone_branch git://git.kernel.org/pub/scm/linux/kernel/git/torvalds linux master
-  clone_branch https://github.com/talex5 linux master
+  clone_branch ${LINUX_URL} linux ${LINUX_BRANCH}
 else
   cd linux
   git reset HEAD --hard
   rm -rf drivers/block/blktap2 include/linux/blktap.h
-  git pull --ff-only https://github.com/talex5/linux.git master
+  git pull --ff-only ${LINUX_URL}/linux.git ${LINUX_BRANCH}
   cd ..
 fi
 
@@ -55,13 +67,13 @@ else
   cd ..
 fi
 
-if [ ! -d xen ]; then
-  #clone_branch git://xenbits.xen.org xen stable-4.4
-  clone_branch https://github.com/talex5 xen stable-4.4
-else
-  cd xen
-  #git pull origin stable-4.4
-  git pull --ff-only https://github.com/talex5/xen.git stable-4.4
-  cd ..
+if [ "$BUILD_XEN" = "true" ] ; then
+  if [ ! -d xen ]; then
+    clone_branch ${XEN_URL} xen ${XEN_BRANCH}
+  else
+    cd xen
+    git pull --ff-only ${XEN_URL}/xen.git ${XEN_BRANCH}
+    cd ..
+  fi
 fi
 

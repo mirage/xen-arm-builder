@@ -1,5 +1,6 @@
-#!/bin/sh -ex
+#!/bin/sh -eux
 # Build a Xen/Ubuntu image for a Cubieboard2
+# vi:shiftwidth=2
 
 # sudo apt-get install kpartx sfdisk curl
 IMG=${BOARD}.img
@@ -48,7 +49,11 @@ cp boot/boot-${BOARD}.scr /mnt/boot.scr
 cp linux/arch/arm/boot/zImage /mnt/vmlinuz
 cp linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb /mnt/
 cp linux/arch/arm/boot/dts/sun7i-a20-cubietruck.dtb /mnt/
-cp xen/xen/xen /mnt/
+if $BUILD_XEN ; then
+  cp xen/xen/xen /mnt/xen
+else
+  cp /mnt/boot/xen-4.5-armhf /mnt/xen
+fi
 umount /mnt
 
 mount ${MLOOPDEV}p2 /mnt
@@ -83,33 +88,45 @@ chmod a+x usr/sbin/policy-rc.d
 mount -o bind /proc /mnt/proc
 mount -o bind /dev /mnt/dev
 
-echo "deb http://ppa.launchpad.net/avsm/ocaml41+opam12/ubuntu trusty main" > /mnt/etc/apt/sources.list.d/ppa-opam.list
+echo "deb http://ppa.launchpad.net/avsm/ocaml41+opam12/ubuntu ${DISTROVER} main" > /mnt/etc/apt/sources.list.d/ppa-opam.list
 chown root /mnt/etc/apt/sources.list.d/ppa-opam.list
 
-echo "deb http://xenbits.xenproject.org/djs/linaro-xapi-4-4-talex5 ./" > /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
-chown root /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
+if ${INSTALL_XAPI} ; then
+  echo "deb http://xenbits.xenproject.org/djs/linaro-xapi-4-4-talex5 ./" > /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
+  chown root /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
+fi
 
 chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
 
-echo "deb http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe 
-deb-src http://ports.ubuntu.com/ubuntu-ports/ trusty-updates main universe
-deb http://ports.ubuntu.com/ubuntu-ports/ trusty-security main universe
-deb-src http://ports.ubuntu.com/ubuntu-ports/ trusty-security main universe" | chroot /mnt tee -a /etc/apt/sources.list > /dev/null
+echo "deb http://ports.ubuntu.com/ubuntu-ports/ ${DISTROVER}-updates main universe
+deb-src http://ports.ubuntu.com/ubuntu-ports/ ${DISTROVER}-updates main universe
+deb http://ports.ubuntu.com/ubuntu-ports/ ${DISTROVER}-security main universe
+deb-src http://ports.ubuntu.com/ubuntu-ports/ ${DISTROVER}-security main universe" | chroot /mnt tee -a /etc/apt/sources.list > /dev/null
 
 chroot /mnt apt-get -y update
 chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
-chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
+chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libgnutls-dev --no-install-recommends
 chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 traceroute man-db --no-install-recommends
 chroot /mnt apt-get -y install uuid-dev libxen-dev software-properties-common --no-install-recommends
+case $DISTROVER in
+  trusty) chroot /mnt apt-get -y install libnl-dev --no-install-recommends ;;
+  vivid) true ;;
+esac
 
-chroot /mnt apt-get -y install xenserver-core thin-provisioning-tools
+if ${INSTALL_XAPI} ; then
+  chroot /mnt apt-get -y install xenserver-core thin-provisioning-tools
+fi
 
 chroot /mnt apt-get -y clean
 
 rm usr/sbin/policy-rc.d
 
 echo UseDNS no >> etc/ssh/sshd_config
+
+# Systemd defaults to graphical.target
+# Does no harm on Trusty.
+ln -s /lib/systemd/system/multi-user.target etc/systemd/system/default.target
 
 # Hostname
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
@@ -126,6 +143,10 @@ sed -i "s/linaro-developer/$BOARD/" etc/hosts
 chroot /mnt mkdir -p /usr/include/xen/arch-arm/hvm
 chroot /mnt touch /usr/include/xen/arch-arm/hvm/save.h
 sed -i '/modprobe xen-gntdev/a modprobe xen-gntalloc' /mnt/etc/init.d/xen
+# Vivid wants to run qemu-system-i386 for dom0, but the Linaro
+# version doesn't seem to be built with CONFIG_XEN.
+# The script silent skips this step if $QEMU is not executable.
+sed -i '/^QEMU=/a QEMU=/does/not/work' /mnt/etc/init.d/xen
 
 # OPAM init - disabled for now
 #OPAM_ROOT=/home/mirage/.opam

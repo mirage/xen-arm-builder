@@ -29,7 +29,6 @@ all:
 ## Fetch and clone all the external files needed
 clone: $(ROOTFS)
 	DISTROVER=$(DISTROVER) BUILD_XEN=$(BUILD_XEN) ./clone-repos.sh
-	cp config/config-cubie2 linux/.config
 
 ifeq ($(BUILD_XEN),true)
 	BUILD_XEN_CMD=./build-xen.sh
@@ -54,22 +53,21 @@ $(ROOTFS):
 
 ## Build the image file
 ${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
-	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" DISTROVER=$(DISTROVER) BUILD_XEN=$(BUILD_XEN) ./build.sh || (rm -f $@; exit 1)
-
-img: $(BOARD).img
+	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" DISTROVER=$(DISTROVER) BUILD_XEN=$(BUILD_XEN) INSTALL_XAPI=$(INSTALL_XAPI) ./build.sh || (rm -f $@; exit 1)
 
 ## Make a sparse (smaller, but source must be read twice) archive of the image file
 %.tar: %.img
 	rm -f $@
 	tar -Scf $@ $<
 
-tar: $(BOARD).tar
-
 ## Make a sparse and compressed archive of the image file
 %.tar.gz: %.img
 	rm -f $@
 	tar -Szcf $@ $<
 
+## Convenience, avoiding the need to repeat yourself about which board
+img: $(BOARD).img
+tar: $(BOARD).tar
 tgz: $(BOARD).tar.gz
 
 dd: $(BOARD).img
