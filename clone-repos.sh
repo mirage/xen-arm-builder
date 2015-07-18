@@ -19,8 +19,7 @@ case $DISTROVER in
     APPLY_PATCHES=true
     ;;
   vivid)
-    # Doesn't seem to be needed:
-    #sudo apt-get -y install qemu-system-common
+    sudo apt-get -y install qemu-utils
     LINUX_URL=https://github.com/infidel
     LINUX_BRANCH=cubie-vivid
     # blktap2 patches don't compile yet with Linux 4.1
