@@ -52,7 +52,7 @@ cp linux/arch/arm/boot/dts/sun7i-a20-cubietruck.dtb /mnt/
 if $BUILD_XEN ; then
   cp xen/xen/xen /mnt/xen
 else
-  cp /mnt/boot/xen-4.5-armhf /mnt/xen
+  tar -O -xf $ROOTFS binary/boot/xen-4.5-armhf > /mnt/xen
 fi
 umount /mnt
 
