@@ -64,7 +64,11 @@ rmdir binary
 rsync -av ${WRKDIR}/linux-arm-modules/ /mnt/
 chown -R root:root /mnt/lib/modules/
 cp ${WRKDIR}/templates/fstab etc/fstab
-cp ${WRKDIR}/templates/interfaces etc/network/interfaces
+if ${INSTALL_XAPI} ; then
+  cp ${WRKDIR}/templates/interfaces etc/network/interfaces
+else
+  cp ${WRKDIR}/templates/interfaces.br0 etc/network/interfaces
+fi
 rm -f etc/resolv.conf
 cp ${WRKDIR}/templates/resolv.conf etc/resolv.conf
 cp ${WRKDIR}/templates/hvc0.conf etc/init
