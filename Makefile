@@ -10,7 +10,9 @@ include config/$(DISTROVER).mk
 # Add an optional apt-cacher-ng proxy running in another docker container
 # (using the IP address rather than the hostname)
 # Run with: docker run --link apt-cacher:proxy ...
-PROXY_IP ?= $(PROXY_PORT_3142_TCP_ADDR)
+ifdef PROXY_PORT_3142_TCP_ADDR
+	http_proxy = http://$(PROXY_PORT_3142_TCP_ADDR):$(PROXY_PORT_3142_TCP_PORT)/
+endif
 
 all: 
 	@echo ------
@@ -59,7 +61,7 @@ $(ROOTFS):
 
 ## Build the image file
 ${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
-	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" DISTROVER=$(DISTROVER) BUILD_XEN=$(BUILD_XEN) INSTALL_XAPI=$(INSTALL_XAPI) PROXY_IP="$(PROXY_IP)" ./build.sh || (rm -f $@; exit 1)
+	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" DISTROVER=$(DISTROVER) BUILD_XEN=$(BUILD_XEN) INSTALL_XAPI=$(INSTALL_XAPI) http_proxy="$(http_proxy)" ./build.sh || (rm -f $@; exit 1)
 
 ## Make a sparse (smaller, but source must be read twice) archive of the image file
 %.tar: %.img

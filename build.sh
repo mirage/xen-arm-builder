@@ -101,11 +101,11 @@ if ${INSTALL_XAPI} ; then
 fi
 
 # Add an optional apt-cacher-ng proxy
-if [ -n "${PROXY_IP}" ] ; then
-    echo "Acquire::http::Proxy \"http://${PROXY_IP}:3142/\";" > /mnt/etc/apt/apt.conf.d/proxy
+if [ -n "${http_proxy}" ] ; then
+    echo "Acquire::http::Proxy \"${http_proxy}\";" > /mnt/etc/apt/apt.conf.d/proxy
 fi
 
-chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
+http_proxy="" chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
 
 echo "deb http://ports.ubuntu.com/ubuntu-ports/ ${DISTROVER}-updates main universe
 deb-src http://ports.ubuntu.com/ubuntu-ports/ ${DISTROVER}-updates main universe
@@ -169,6 +169,6 @@ sed -i '/^QEMU=/a QEMU=/does/not/work' /mnt/etc/init.d/xen
 chroot /mnt chown -R mirage /home/mirage
 
 # Remove the proxy
-if [ -n "${PROXY_IP}" ] ; then
+if [ -n "${http_proxy}" ] ; then
     rm /mnt/etc/apt/apt.conf.d/proxy
 fi
