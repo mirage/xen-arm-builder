@@ -7,6 +7,11 @@ FIRMWARE ?= rtlwifi htc_9271.fw
 DISTROVER ?= trusty
 include config/$(DISTROVER).mk
 
+# Add an optional apt-cacher-ng proxy running in another docker container
+# (using the IP address rather than the hostname)
+# Run with: docker run --link apt-cacher:proxy ...
+PROXY_IP ?= $(PROXY_PORT_3142_TCP_ADDR)
+
 all: 
 	@echo ------
 	@echo "BOARD can be: cubieboard2 (default) or cubietruck"
@@ -54,7 +59,7 @@ $(ROOTFS):
 
 ## Build the image file
 ${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
-	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" DISTROVER=$(DISTROVER) BUILD_XEN=$(BUILD_XEN) INSTALL_XAPI=$(INSTALL_XAPI) ./build.sh || (rm -f $@; exit 1)
+	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" DISTROVER=$(DISTROVER) BUILD_XEN=$(BUILD_XEN) INSTALL_XAPI=$(INSTALL_XAPI) PROXY_IP="$(PROXY_IP)" ./build.sh || (rm -f $@; exit 1)
 
 ## Make a sparse (smaller, but source must be read twice) archive of the image file
 %.tar: %.img

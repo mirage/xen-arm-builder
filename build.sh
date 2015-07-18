@@ -96,6 +96,11 @@ if ${INSTALL_XAPI} ; then
   chown root /mnt/etc/apt/sources.list.d/linaro-xapi-4-4-talex5.list
 fi
 
+# Add an optional apt-cacher-ng proxy
+if [ -n "${PROXY_IP}" ] ; then
+    echo "Acquire::http::Proxy \"http://${PROXY_IP}:3142/\";" > /mnt/etc/apt/apt.conf.d/proxy
+fi
+
 chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
 
 echo "deb http://ports.ubuntu.com/ubuntu-ports/ ${DISTROVER}-updates main universe
@@ -158,3 +163,8 @@ sed -i '/^QEMU=/a QEMU=/does/not/work' /mnt/etc/init.d/xen
 # chroot /mnt opam repo add mirage https://github.com/mirage/mirage-dev.git --root=${OPAM_ROOT}
 # chroot /mnt opam update --root=${OPAM_ROOT} # due to a bug in 1.1.1 (fixed in 1.2)
 chroot /mnt chown -R mirage /home/mirage
+
+# Remove the proxy
+if [ -n "${PROXY_IP}" ] ; then
+    rm /mnt/etc/apt/apt.conf.d/proxy
+fi
