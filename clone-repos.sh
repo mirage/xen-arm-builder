@@ -37,13 +37,11 @@ clone_branch () {
   cd ..
 }
 
-if [ ! -d u-boot-sunxi ]; then
-  #git clone git://github.com/linux-sunxi/u-boot-sunxi.git
-  git clone git://git.denx.de/u-boot.git u-boot-sunxi
-  git checkout -b release v2015.04
+if [ ! -d u-boot ]; then
+  git clone git://git.denx.de/u-boot.git -b v2015.04
 else
-  cd u-boot-sunxi
-  #git pull --ff-only origin master
+  cd u-boot
+  git pull --ff-only origin v2015.04
   cd ..
 fi
 
