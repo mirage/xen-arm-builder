@@ -15,7 +15,7 @@ case $DISTROVER in
     LINUX_URL=https://github.com/talex5
     LINUX_BRANCH=master
     XEN_URL=https://github.com/talex5
-    XEN_BRANCH=stable-4.4
+    XEN_BRANCH=fix-grant-mapping
     APPLY_PATCHES=true
     ;;
   vivid)
