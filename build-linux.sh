@@ -1,6 +1,6 @@
 #!/bin/sh -eux
 
-sudo apt-get -y install kmod
+sudo apt-get -y install kmod || true
 
 rm -rf linux-arm-modules
 cd linux
