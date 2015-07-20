@@ -21,7 +21,7 @@ losetup -f ${IMG}
 LOOPDEV=$(losetup -j ${IMG} -o 0 | cut -d ":" -f 1)
 
 # Create partition table
-dd if=u-boot-sunxi/build-${BOARD}/u-boot-sunxi-with-spl.bin of=${LOOPDEV} bs=1024 seek=8
+dd if=u-boot/build-${BOARD}/u-boot-sunxi-with-spl.bin of=${LOOPDEV} bs=1024 seek=8
 SIZE=`fdisk -l ${LOOPDEV} | grep Disk | grep bytes | awk '{print $5}'`
 CYLINDERS=`echo $SIZE/255/63/512 | bc`
 WRKDIR=`pwd`

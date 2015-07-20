@@ -21,11 +21,11 @@ clone_branch () {
   cd ..
 }
 
-if [ ! -d u-boot-sunxi ]; then
-  clone_branch git://github.com/jwrdegoede u-boot-sunxi sunxi-next
+if [ ! -d u-boot ]; then
+  git clone git://git.denx.de/u-boot.git -b v2015.04
 else
-  cd u-boot-sunxi
-  git pull --ff-only origin sunxi-next
+  cd u-boot
+  git pull --ff-only origin v2015.04
   cd ..
 fi
 
@@ -57,11 +57,11 @@ fi
 
 if [ ! -d xen ]; then
   #clone_branch git://xenbits.xen.org xen stable-4.4
-  clone_branch https://github.com/talex5 xen stable-4.4
+  clone_branch https://github.com/talex5 xen fix-grant-mapping
 else
   cd xen
   #git pull origin stable-4.4
-  git pull --ff-only https://github.com/talex5/xen.git stable-4.4
+  git pull --ff-only https://github.com/talex5/xen.git fix-grant-mapping
   cd ..
 fi
 
