@@ -53,7 +53,7 @@ menuconfig: linux/.config
 build: linux/.config
 	BOARD=$(BOARD) ./build-uboot.sh
 	$(BUILD_XEN_CMD)
-	./build-linux.sh
+	DISTROVER=$(DISTROVER) ./build-linux.sh
 
 ## Get the latest Linaro root image
 $(ROOTFS):
