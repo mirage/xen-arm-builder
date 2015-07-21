@@ -72,8 +72,6 @@ fi
 rm -f etc/resolv.conf
 cp ${WRKDIR}/templates/resolv.conf etc/resolv.conf
 cp ${WRKDIR}/templates/hvc0.conf etc/init
-cp --preserve=mode ${WRKDIR}/templates/init.d/1st-boot etc/init.d/
-ln -s ../init.d/1st-boot etc/rcS.d/S10firstboot
 mkdir -p lib/firmware
 for f in ${FIRMWARE}; do
 	cp -av "${WRKDIR}/linux-firmware/$f" lib/firmware
@@ -119,8 +117,19 @@ chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev lib
 chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 traceroute man-db --no-install-recommends
 chroot /mnt apt-get -y install uuid-dev libxen-dev software-properties-common --no-install-recommends
 case $DISTROVER in
-  trusty) chroot /mnt apt-get -y install libnl-dev --no-install-recommends ;;
-  vivid) true ;;
+  trusty)
+    chroot /mnt apt-get -y install libnl-dev --no-install-recommends
+    cp --preserve=mode ${WRKDIR}/templates/init.d/1st-boot /mnt/etc/init.d/
+    ln -s ../init.d/1st-boot etc/rcS.d/S10firstboot
+    ;;
+  vivid)
+    cp --preserve=mode ${WRKDIR}/templates/init.d/firstboot.vivid /mnt/etc/init.d/firstboot
+    chroot /mnt update-rc.d firstboot defaults
+    ;;
+  *)
+    echo Unknown DISTROVER $DISTROVER
+    exit 1
+    ;;
 esac
 
 if ${INSTALL_XAPI} ; then
