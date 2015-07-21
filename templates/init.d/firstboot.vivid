@@ -41,7 +41,7 @@ EOF
     ES=$?
     log_action_end_msg $ES
 
-    log_action_begin_msg "Creating LVM partition..."
+    log_action_begin_msg "Creating LVM partition"
     # In case there's one already:
     lvchange -an vg0
     # Not really "ext4", but lvm isn't an option:
@@ -51,6 +51,20 @@ EOF
     vgcreate vg0 /dev/mmcblk0p3
     ES=$?
     vgs
+    log_action_end_msg $ES
+
+    log_action_begin_msg "Moving /home to LVM"
+    lvcreate -n home -L 1G vg0
+    mkfs.ext4 /dev/vg0/home
+    ES=$?
+    if [ $ES = 0 ] ; then
+        mount /dev/vg0/home /mnt
+        rsync -arq /home/ /mnt/
+        umount /dev/vg0/home
+        echo "/dev/vg0/home /home ext4 defaults 0 2" >> /etc/fstab
+        mount /dev/vg0/home /home
+        ES=$?
+    fi
     log_action_end_msg $ES
 
     # TODO: echo Configuring xapi
