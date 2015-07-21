@@ -78,10 +78,6 @@ img: $(BOARD).img
 tar: $(BOARD).tar
 tgz: $(BOARD).tar.gz
 
-dd: $(BOARD).img
-	sudo dd if=$(BOARD).img of=/dev/mmcblk0 bs=4096
-	sudo partprobe /dev/mmcblk0
-
 ## Generate the u-boot boot commands script
 %.scr: %.cmd
 	./u-boot/build-${BOARD}/tools/mkimage -C none -A arm -T script -d "$<" "$@"
