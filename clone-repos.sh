@@ -13,6 +13,7 @@ case $DISTROVER in
   trusty)
     sudo apt-get -y install qemu qemu-user-static
     LINUX_URL=https://github.com/talex5
+    LINUX_NAME=linux
     LINUX_BRANCH=master
     XEN_URL=https://github.com/talex5
     XEN_BRANCH=fix-grant-mapping
@@ -20,8 +21,9 @@ case $DISTROVER in
     ;;
   vivid)
     sudo apt-get -y install qemu-utils
-    LINUX_URL=https://github.com/infidel
-    LINUX_BRANCH=cubie-vivid
+    LINUX_URL=https://git.kernel.org/pub/scm/linux/kernel/git/stable
+    LINUX_NAME=linux-stable
+    LINUX_BRANCH=linux-4.1.y
     # blktap2 patches don't compile yet with Linux 4.1
     APPLY_PATCHES=false
     ;;
@@ -45,12 +47,12 @@ else
 fi
 
 if [ ! -d linux ]; then
-  clone_branch ${LINUX_URL} linux ${LINUX_BRANCH}
+  clone_branch ${LINUX_URL} ${LINUX_NAME} ${LINUX_BRANCH}
 else
   cd linux
   git reset HEAD --hard
   rm -rf drivers/block/blktap2 include/linux/blktap.h
-  git pull --ff-only ${LINUX_URL}/linux.git ${LINUX_BRANCH}
+  git pull --ff-only ${LINUX_URL}/${LINUX_NAME}.git ${LINUX_BRANCH}
   cd ..
 fi
 
