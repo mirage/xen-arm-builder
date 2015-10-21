@@ -65,3 +65,10 @@ else
   cd ..
 fi
 
+cd xen
+for i in ../patches/xen*.patch
+do
+  patch -p1 < $i
+done
+cd ..
+

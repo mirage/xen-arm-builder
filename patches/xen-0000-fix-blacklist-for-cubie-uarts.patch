@@ -1,0 +1,22 @@
+diff --git a/xen/arch/arm/platforms/sunxi.c b/xen/arch/arm/platforms/sunxi.c
+index fb12801..dd4505e 100644
+--- a/xen/arch/arm/platforms/sunxi.c
++++ b/xen/arch/arm/platforms/sunxi.c
+@@ -27,10 +27,14 @@ static const char * const sunxi_dt_compat[] __initconst =
+ static const struct dt_device_match sunxi_blacklist_dev[] __initconst =
+ {
+     /*
+-     * The UARTs share a page which runs the risk of mapping the Xen console
+-     * UART to dom0, so don't map any of them.
++     * Four of the UARTs share a page which runs the risk of mapping the Xen console
++     * UART to dom0, black list all devices that share that page. The other
++     * four UARTs will remain available for use.
+      */
+-    DT_MATCH_COMPATIBLE("snps,dw-apb-uart"),
++    DT_MATCH_PATH("/soc@01c00000/serial@01c28000"),
++    DT_MATCH_PATH("/soc@01c00000/serial@01c28400"),
++    DT_MATCH_PATH("/soc@01c00000/serial@01c28800"),
++    DT_MATCH_PATH("/soc@01c00000/serial@01c28c00"),
+     { /* sentinel */ },
+ };
+ 
