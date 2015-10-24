@@ -30,7 +30,7 @@ case $DISTROVER in
 esac
 
 clone_branch () {
-  git clone ${1}/${2}.git
+  git clone ${1}/${2}.git $4
   cd $2
   if [ "$3" != "master" ]; then
     git checkout -b $3 origin/$3
@@ -47,7 +47,7 @@ else
 fi
 
 if [ ! -d linux ]; then
-  clone_branch ${LINUX_URL} ${LINUX_NAME} ${LINUX_BRANCH}
+  clone_branch ${LINUX_URL} ${LINUX_NAME} ${LINUX_BRANCH} linux
 else
   cd linux
   git reset HEAD --hard
@@ -66,7 +66,7 @@ if $APPLY_PATCHES ; then
 fi
 
 if [ ! -d linux-firmware ]; then
-  clone_branch https://git.kernel.org/pub/scm/linux/kernel/git/firmware linux-firmware master
+  clone_branch https://git.kernel.org/pub/scm/linux/kernel/git/firmware linux-firmware master linux-firmware
 else
   cd linux-firmware
   git pull --ff-only https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git master
@@ -75,7 +75,7 @@ fi
 
 if $BUILD_XEN ; then
   if [ ! -d xen ]; then
-    clone_branch ${XEN_URL} xen ${XEN_BRANCH}
+    clone_branch ${XEN_URL} xen ${XEN_BRANCH} xen
   else
     cd xen
     git pull --ff-only ${XEN_URL}/xen.git ${XEN_BRANCH}
