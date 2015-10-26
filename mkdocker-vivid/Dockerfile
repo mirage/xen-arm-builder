@@ -3,7 +3,7 @@
 # To build: docker build -t xen-sdcard-builder .
 FROM ubuntu:vivid
 RUN apt-get update
-RUN apt-get install -y curl gcc-arm-linux-gnueabihf rsync git build-essential kpartx binfmt-support qemu-user-static python bc parted dosfstools sudo qemu-utils
+RUN apt-get install -y curl gcc-arm-linux-gnueabihf rsync git build-essential kpartx binfmt-support qemu-user-static python bc parted dosfstools sudo qemu-utils device-tree-compiler
 RUN sudo mknod /dev/loop0 -m0660 b 7 0
 VOLUME /xen-arm-builder
 WORKDIR /xen-arm-builder
