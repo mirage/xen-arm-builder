@@ -10,7 +10,7 @@ else
     GCC=gcc-4.7-arm-linux-gnueabihf
 fi
 
-sudo apt-get -y install rsync git $GCC build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools
+sudo apt-get -y install rsync git $GCC build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools curl device-tree-compiler
 
 clone_branch () {
   git clone ${1}/${2}.git
