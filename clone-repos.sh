@@ -22,21 +22,19 @@ clone_branch () {
 }
 
 if [ ! -d u-boot ]; then
-  git clone git://git.denx.de/u-boot.git -b v2015.04
+  git clone git://git.denx.de/u-boot.git -b v2016.03
 else
   cd u-boot
-  git pull --ff-only origin v2015.04
+  git pull --ff-only origin v2016.03
   cd ..
 fi
 
 if [ ! -d linux ]; then
-  #clone_branch git://git.kernel.org/pub/scm/linux/kernel/git/torvalds linux master
-  clone_branch https://github.com/talex5 linux master
+  git clone https://github.com/torvalds/linux.git -b v4.5
 else
   cd linux
   git reset HEAD --hard
-  rm -rf drivers/block/blktap2 include/linux/blktap.h
-  git pull --ff-only https://github.com/talex5/linux.git master
+  git pull --ff-only https://github.com/torvalds/linux.git v4.5
   cd ..
 fi
 
@@ -56,12 +54,10 @@ else
 fi
 
 if [ ! -d xen ]; then
-  #clone_branch git://xenbits.xen.org xen stable-4.4
-  clone_branch https://github.com/talex5 xen fix-grant-mapping
+  clone_branch https://github.com/mirage xen stable-4.6
 else
   cd xen
-  #git pull origin stable-4.4
-  git pull --ff-only https://github.com/talex5/xen.git fix-grant-mapping
+  git pull --ff-only https://github.com/mirage/xen.git stable-4.6
   cd ..
 fi
 
