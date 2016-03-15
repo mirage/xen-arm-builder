@@ -39,9 +39,10 @@ else
 fi
 
 cd linux
-for i in ../patches/linux*.patch
-do
-  patch -p1 < $i
+for i in ../patches/linux*.patch; do
+  if [ -e $i ]; then
+    patch -p1 < $i
+  fi
 done
 cd ..
 
@@ -62,9 +63,10 @@ else
 fi
 
 cd xen
-for i in ../patches/xen*.patch
-do
-  patch -p1 < $i
+for i in ../patches/xen*.patch; do
+  if [ -e $i ]; then
+    patch -p1 < $i
+  fi
 done
 cd ..
 
