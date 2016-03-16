@@ -55,10 +55,10 @@ else
 fi
 
 if [ ! -d xen ]; then
-  clone_branch https://github.com/mirage xen stable-4.6
+  clone_branch https://github.com/mirage xen master
 else
   cd xen
-  git pull --ff-only https://github.com/mirage/xen.git stable-4.6
+  git pull --ff-only https://github.com/mirage/xen.git master
   cd ..
 fi
 
