@@ -1,4 +1,5 @@
-The scripts in this repository provide an easy way to set up Xen on a Cubieboard 2 or CubieTruck with:
+The scripts in this repository provide an easy way to set up Xen on a
+Cubieboard 2 or CubieTruck with:
 
 * U-Boot as the bootloader,
 * Xen as the hypervisor,
@@ -7,7 +8,8 @@ The scripts in this repository provide an easy way to set up Xen on a Cubieboard
 
 # Pre-built binaries
 
-To save time and the need to install Ubuntu, you can download pre-built SDcard images from here:
+To save time and the need to install Ubuntu, you can download
+pre-built SDcard images from here:
 
 * http://blobs.openmirage.org/cubieboard2.tar (Cubieboard 2)
 * http://blobs.openmirage.org/cubietruck.tar (CubieTruck)
@@ -25,7 +27,8 @@ packages using `apt-get`).
 toolchain instructions to install the **emdebian-archive-keyring**
 package and the emdebian.org apt source.
 
-3. Download the dependencies (this will clone all the relevant repositories):
+3. Download the dependencies (this will clone all the relevant
+   repositories):
 
          $ make clone
 
@@ -36,14 +39,16 @@ described on the [sunxi](http://linux-sunxi.org/Toolchain) site.
 
          $ make build
 
-    You may get prompted about extra configuration options at this point.
-    You can probably just press Return to accept the default for each one.
+    You may get prompted about extra configuration options at this
+    point.  You can probably just press Return to accept the default
+    for each one.
 
 6. Build the SDcard image:
 
          $ make $BOARD.img
 
-   It will need to mount various loopback devices on `/mnt` during this process.
+   It will need to mount various loopback devices on `/mnt` during
+   this process.
 
 # Installation
 
@@ -69,13 +74,14 @@ described on the [sunxi](http://linux-sunxi.org/Toolchain) site.
 
         sudo dd if=cubieboard2.img of=/dev/rdiskN bs=64k
 
-   Note: Without the 'rdisk' in the output file, the copying will be extremely slow due to buffering.
+   Note: Without the 'rdisk' in the output file, the copying will be
+   extremely slow due to buffering.
 
 # Booting
 
 Insert the SDcard in the device, then connect the network and power.
-The device should get an IP address using DHCP.
-SSH to the device (the name is `$BOARD.local.`, which can be used if your machine
+The device should get an IP address using DHCP.  SSH to the device
+(the name is `$BOARD.local.`, which can be used if your machine
 supports mDNS/avahi/zeroconf):
 
     $ ssh mirage@cubieboard2.local.
@@ -86,8 +92,8 @@ Install your SSH public key and change login password (or lock the
 account with `sudo passwd -l mirage`).
 
 If you plan on connecting to TLS-secured services, don't forget to set
-the system time so that certificate validity windows work correctly (not
-many TLS certificates were valid in 1970). For example:
+the system time so that certificate validity windows work correctly
+(not many TLS certificates were valid in 1970). For example:
 
     $ sudo ntpdate uk.pool.ntp.org
 
@@ -95,38 +101,50 @@ many TLS certificates were valid in 1970). For example:
 
 You should now be able to use Xen via the `xl` command:
 
-    $ sudo xl list
-    Name                                        ID   Mem VCPUs      State   Time(s)
-    Domain-0                                     0   512     2     r-----     171.7
+    $ sudo xl list Name ID Mem VCPUs State Time(s) Domain-0 0 512 2
+    r----- 171.7
 
 # Installing libvirt w/Xen support
 
-The libvirt-package in Ubuntu does not have Xen support enabled by default. To download and install libvirt automatically, run `sudo /root/scripts/install_libvirt.sh`. This script compiles libvirt with Xen support and configures libvirtd to listen to a Unix socket. If you need access to libvirtd over TCP, further instructions are available [here](http://openmirage.org/wiki/libvirt-on-cubieboard).
+The libvirt-package in Ubuntu does not have Xen support enabled by
+default. To download and install libvirt automatically, run `sudo
+/root/scripts/install_libvirt.sh`. This script compiles libvirt with
+Xen support and configures libvirtd to listen to a Unix socket. If you
+need access to libvirtd over TCP, further instructions are available
+[here](http://openmirage.org/wiki/libvirt-on-cubieboard).
 
 
 # Adding device drivers
 
-To add drivers to the supplied Linux kernel, first clone and install the default configuration:
+To add drivers to the supplied Linux kernel, first clone and install
+the default configuration:
 
 	$ make clone
 
-After cloning, the Linux kernel is in a folder called 'linux' and the default configuration file from the 'config/' folder has been copied to 'linux/.config'.
+After cloning, the Linux kernel is in a folder called 'linux' and the
+default configuration file from the 'config/' folder has been copied
+to 'linux/.config'.
 
 You can now configure the kernel, for example by using menuconfig:
 
-	$ cd linux
-	$ make clean
-	$ make menuconfig
+	$ cd linux $ make clean $ make menuconfig
 
-When you are happy with the configuration you may copy 'linux/.config' back to 'config/' to make sure that it is not overwritten later by 'make clone'.
+When you are happy with the configuration you may copy 'linux/.config'
+back to 'config/' to make sure that it is not overwritten later by
+'make clone'.
 
-If the drivers you have enabled need binary firmware, add the name of the firmware file (or folder) to the FIRMWARE-variable in the Makefile. Alternatively, you can set the FIRMWARE environment variable before calling 'make':
+If the drivers you have enabled need binary firmware, add the name of
+the firmware file (or folder) to the FIRMWARE-variable in the
+Makefile. Alternatively, you can set the FIRMWARE environment variable
+before calling 'make':
 
 	$ export FIRMWARE=rtlwifi
 
-The specified firmware will be copied from 'linux-firmware/' to '/lib/firmware' on the final image.
+The specified firmware will be copied from 'linux-firmware/' to
+'/lib/firmware' on the final image.
 
-You should now be able to build the new image with the updated kernel and firmware with "make build" and "make $BOARD.img".
+You should now be able to build the new image with the updated kernel
+and firmware with "make build" and "make $BOARD.img".
 
 ## How to Contribute
 
@@ -135,6 +153,7 @@ requests. You can find more documentation on <http://openmirage.org>.
 
 ## License
 
-All the scripts and metadata contained in this repository are licensed under the
+All the scripts and metadata contained in this repository are licensed
+under the
 [CC0 1.0 Universal](http://creativecommons.org/publicdomain/zero/1.0/)
 license.
