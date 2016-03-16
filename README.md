@@ -16,6 +16,10 @@ pre-built SDcard images from here:
 
 # Building from source
 
+**Note**:Building from source is not easy, see
+[here](http://hyegar.com/2016/03/15/building-xen-arm-from-source/) for
+some common issues you might encounter.
+
 These scripts must be run on Ubuntu or Debian (they install some
 packages using `apt-get`).
 
