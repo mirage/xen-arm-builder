@@ -1,4 +1,6 @@
-#!/bin/sh -ex
+#!/bin/sh -eux
+
+sudo apt-get install -y device-tree-compiler
 
 case $BOARD in
 cubieboard2) TARG=Cubieboard2_config ;;

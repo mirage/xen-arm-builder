@@ -1,0 +1,99 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          firstboot
+# Required-Start:    $local_fs
+# Required-Stop:
+# Should-Start:
+# Default-Start:     S
+# Default-Stop:
+# Short-Description: Prepare LVM on the cubieboard
+# X-Start-Before:    ssh
+### END INIT INFO
+
+. /lib/init/vars.sh
+. /lib/lsb/init-functions
+
+do_start () {
+    log_action_begin_msg "Regenerating ssh keys"
+    rm -f /etc/ssh/ssh_host_*
+    dpkg-reconfigure openssh-server
+    ES=$?
+    log_action_end_msg $ES
+
+    # Don't run this script again.
+    # If the LVM step below fails, don't retry because we might wipe real data.
+    log_action_begin_msg "Disabling firstboot for future boots"
+    update-rc.d firstboot remove
+    ES=$?
+    log_action_end_msg $ES
+
+    log_action_begin_msg "Extending root partition to 3GB"
+    # Note: start sector must match value in build.sh
+    sfdisk --no-reread /dev/mmcblk0 <<EOF
+# partition table of /dev/mmcblk0
+unit: sectors
+
+/dev/mmcblk0p1 : start=     2048, size=   262144, Id= c
+/dev/mmcblk0p2 : start=   264192, size=  6291455, Id=83
+EOF
+    partprobe
+    resize2fs /dev/mmcblk0p2
+    ES=$?
+    log_action_end_msg $ES
+
+    log_action_begin_msg "Creating LVM partition"
+    # In case there's one already:
+    lvchange -an vg0
+    # Not really "ext4", but lvm isn't an option:
+    parted /dev/mmcblk0 --script -- mkpart primary ext4 6555648s -1s
+    parted /dev/mmcblk0 --script -- set 3 lvm on
+    pvcreate -ffy /dev/mmcblk0p3
+    vgcreate vg0 /dev/mmcblk0p3
+    ES=$?
+    vgs
+    log_action_end_msg $ES
+
+    log_action_begin_msg "Moving /home to LVM"
+    lvcreate -n home -L 1G vg0
+    mkfs.ext4 /dev/vg0/home
+    ES=$?
+    if [ $ES = 0 ] ; then
+        mount /dev/vg0/home /mnt
+        rsync -arq /home/ /mnt/
+        umount /dev/vg0/home
+        echo "/dev/vg0/home /home ext4 defaults 0 2" >> /etc/fstab
+        mount /dev/vg0/home /home
+        ES=$?
+    fi
+    log_action_end_msg $ES
+
+    # TODO: echo Configuring xapi
+
+    log_success_msg "firstboot complete"
+}
+
+do_status () {
+    return 0
+}
+
+case "$1" in
+    start|"")
+        do_start
+        ;;
+    restart|reload|force-reload)
+        echo "Error: argument '$1' not supported" >&2
+        exit 3
+        ;;
+    stop)
+        # No-op
+        ;;
+    status)
+        do_status
+        exit $?
+        ;;
+    *)
+        echo "Usage: firstboot [start|stop]" >&2
+        exit 3
+        ;;
+esac
+
