@@ -64,3 +64,4 @@ ${BOARD}.img: $(ROOTFS) $(TARGET_FILES)
 clean:
 	rm -f cubie*.img boot/boot.*.scr
 	cd u-boot && $(MAKE) mrproper
+	cd xen && $(MAKE) mrproper
