@@ -10,7 +10,14 @@ else
     GCC=gcc-4.7-arm-linux-gnueabihf
 fi
 
-sudo apt-get -y install rsync git $GCC build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools curl device-tree-compiler libncurses5-dev
+# Only attempt to install a compiler if one isn't found
+! which arm-linux-gnueabihf-gcc > /dev/null
+GCC_FOUND=$?
+if [ $GCC_FOUND = 0 ]; then
+    sudo apt-get -y install rsync git $GCC build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools curl device-tree-compiler libncurses5-dev
+else
+    sudo apt-get -y install rsync git build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools curl device-tree-compiler libncurses5-dev
+fi
 
 clone_branch () {
   git clone ${1}/${2}.git
@@ -55,10 +62,10 @@ else
 fi
 
 if [ ! -d xen ]; then
-  clone_branch https://github.com/mirage xen master
+  clone_branch http://xenbits.xen.org/git-http xen master
 else
   cd xen
-  git pull --ff-only https://github.com/mirage/xen.git master
+  git pull --ff-only http://xenbits.xen.org/git-http/xen.git master
   cd ..
 fi
 
