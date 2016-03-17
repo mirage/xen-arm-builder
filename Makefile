@@ -32,11 +32,11 @@ all:
 ## Fetch and clone all the external files needed
 clone: $(ROOTFS)
 	./clone-repos.sh
-	cp config/config-cubie2 linux/.config
 
 build:
 	BOARD=$(BOARD) ./build-uboot.sh
 	./build-xen.sh
+	cp config/config-cubie2 linux/.config
 	./build-linux.sh
 
 ## Get the latest Linaro root image
@@ -65,3 +65,4 @@ clean:
 	rm -f cubie*.img boot/boot.*.scr
 	cd u-boot && $(MAKE) mrproper
 	cd xen && $(MAKE) mrproper
+	cd linux && $(MAKE) mrproper
