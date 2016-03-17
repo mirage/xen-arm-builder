@@ -57,6 +57,11 @@ cd /mnt
 mv binary/* .
 rmdir binary
 rsync -av ${WRKDIR}/linux-arm-modules/ /mnt/
+
+# Copy the xen source to the target filesystem so we can build the tools on the 
+# target after we boot (for now).
+rsync -av --exclude='.git/' ${WRKDIR}/xen/ /mnt/usr/src/xen/
+
 chown -R root:root /mnt/lib/modules/
 cp ${WRKDIR}/templates/fstab etc/fstab
 cp ${WRKDIR}/templates/interfaces etc/network/interfaces
@@ -83,7 +88,10 @@ chmod a+x usr/sbin/policy-rc.d
 mount -o bind /proc /mnt/proc
 mount -o bind /dev /mnt/dev
 
-echo "deb http://ppa.launchpad.net/avsm/ocaml41+opam12/ubuntu trusty main" > /mnt/etc/apt/sources.list.d/ppa-opam.list
+# Enable the cross compiling environment in this chroot
+#chroot /mnt dpkg --add-architecture armhf
+
+echo "deb http://ppa.launchpad.net/avsm/ocaml42+opam12/ubuntu trusty main" > /mnt/etc/apt/sources.list.d/ppa-opam.list
 chown root /mnt/etc/apt/sources.list.d/ppa-opam.list
 
 chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
@@ -92,7 +100,11 @@ chroot /mnt apt-get -y upgrade
 chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
 chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
 chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
-chroot /mnt apt-get -y install uuid-dev libxen-dev software-properties-common --no-install-recommends
+chroot /mnt apt-get -y install uuid-dev software-properties-common --no-install-recommends
+
+# Install the necessar chroot cross compiling packages
+#chroot /mnt apt-get -y install crossbuild-essential-armhf --no-install-recommends
+#chroot /mnt apt-get -y install libc6-dev:armhf libncurses-dev:armhf uuid-dev:armhf libglib2.0-dev:armhf libssl-dev:armhf libssl-dev:armhf libaio-dev:armhf libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf --no-install-recommends
 
 rm usr/sbin/policy-rc.d
 
@@ -102,15 +114,16 @@ echo UseDNS no >> etc/ssh/sshd_config
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
 echo $BOARD > etc/hostname
 
+# Build and install the custom xen tools, this has to be done here so that the 
+# tools are linking against the correct libraries
+#chroot /mnt cd /usr/src/xen && CONFIG_SITE=/etc/dpkg-cross/cross-config.armhf ./configure --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
+#chroot /mnt cd /usr/src/xen && make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32
+#chroot /mnt cd /usr/src/xen && make install-tools
+
 # Mirage user
 chroot /mnt userdel -r linaro
 chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
-
-# Xen fixes
-chroot /mnt mkdir -p /usr/include/xen/arch-arm/hvm
-chroot /mnt touch /usr/include/xen/arch-arm/hvm/save.h
-sed -i '/modprobe xen-gntdev/a modprobe xen-gntalloc' /mnt/etc/init.d/xen
 
 # OPAM init
 OPAM_ROOT=/home/mirage/.opam
