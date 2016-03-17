@@ -6,6 +6,15 @@ BOARD ?= cubieboard2
 # BOARD ?= cubietruck
 FIRMWARE ?= rtlwifi htc_9271.fw
 
+# files required to build the final image
+TARGET_FILES := \
+    boot/boot-${BOARD}.scr \
+    u-boot/build-${BOARD}/u-boot-sunxi-with-spl.bin \
+    linux/arch/arm/boot/zImage \
+    linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb \
+    linux/arch/arm/boot/dts/sun7i-a20-cubietruck.dtb \
+    xen/xen/xen
+
 all: 
 	@echo ------
 	@echo "BOARD can be: cubieboard2 (default) or cubietruck"
@@ -35,7 +44,7 @@ $(ROOTFS):
 	curl -OL $(ROOTFSURL)/$(ROOTFS)
 
 ## Build the image file
-${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
+${BOARD}.img: $(ROOTFS) $(TARGET_FILES)
 	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" ./build.sh || (rm -f $@; exit 1)
 
 ## Make a sparse (smaller, but source must be read twice) archive of the image file
