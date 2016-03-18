@@ -36,12 +36,13 @@ else
   cd ..
 fi
 
+# Use the v4.5-rc7 because v4.5 has a bug that breaks the ethernet phy
 if [ ! -d linux ]; then
-  git clone https://github.com/torvalds/linux.git -b v4.5
+  git clone https://github.com/torvalds/linux.git -b v4.5-rc7
 else
   cd linux
   git reset HEAD --hard
-  git pull --ff-only https://github.com/torvalds/linux.git v4.5
+  git pull --ff-only https://github.com/torvalds/linux.git v4.5-rc7
   cd ..
 fi
 
@@ -65,6 +66,7 @@ if [ ! -d xen ]; then
   clone_branch http://xenbits.xen.org/git-http xen master
 else
   cd xen
+  git reset HEAD --hard
   git pull --ff-only http://xenbits.xen.org/git-http/xen.git master
   cd ..
 fi
