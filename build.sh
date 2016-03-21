@@ -107,7 +107,7 @@ chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man
 chroot /mnt apt-get -y install uuid-dev software-properties-common --no-install-recommends
 
 # Packages required to compile the xen-tools natively when the board boots
-chroot /mnt apt-get -y install libc6-dev:arm64 libncurses-dev:arm64 uuid-dev:arm64 libglib2.0-dev:arm64 libssl-dev:arm64 libssl-dev:arm64 libaio-dev:arm64 libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf libpixman-1-dev --no-install-recommends
+chroot /mnt apt-get -y install libc6-dev:armhf libncurses-dev:armhf uuid-dev:armhf libglib2.0-dev:armhf libssl-dev:armhf libssl-dev:armhf libaio-dev:armhf libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf libpixman-1-dev --no-install-recommends
 
 rm usr/sbin/policy-rc.d
 
@@ -117,18 +117,36 @@ echo UseDNS no >> etc/ssh/sshd_config
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
 echo $BOARD > etc/hostname
 
+# Fix some syslog deficiencies with the rsyslog daemon from the base FS.
+sed -i "s/\s+create_xconsole$/d" /mnt/etc/init.d/rsyslog
+sed -i "65,68s/^/#/d" /mnt/etc/rsyslog.d/50-default.conf
+chroot /mnt touch /var/log/syslog
+chroot /mnt chown syslog.adm /var/log/syslog
+
 # Build and install the custom xen tools, this has to be done here so that the 
-# tools are linking against the correct libraries
-chroot /mnt cd /usr/src/xen && CONFIG_SITE=/usr/src/xen/config.cache ./configure --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
-chroot /mnt cd /usr/src/xen && make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32
-chroot /mnt cd /usr/src/xen && make install-tools
+# tools are linking against the correct libraries, then uninstall the old xen 
+# service and install the new ones.
+chroot /mnt /bin/bash -ex <<EOF
+echo "Disabling old Xen services"
+update-rc.d -f xen remove
+update-rc.d -f xendomains remove
+
+cd /usr/src/xen
+CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
+make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32
+make make -C tools install
+
+echo "Enabling new Xen services"
+update-rc.d xencommons defaults 19 81
+update-rc.d xendomains defaults 21 79
+EOF
 
 # Mirage user
 chroot /mnt userdel -r linaro
 chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage" sed -i "s/linaro-developer/$BOARD/" etc/hosts 
 
 # the resize application isn't on this image, so use a bash equivalent
-cat >> /home/mirage/.profile <<EOF
+chroot /mnt cat >> /home/mirage/.profile <<EOF
 
 if [ -n "$PS1" ]; then
     # bash equivalent of the "resize" command
