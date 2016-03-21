@@ -63,11 +63,11 @@ else
 fi
 
 if [ ! -d xen ]; then
-  clone_branch http://xenbits.xen.org/git-http xen master
+  clone_branch git://xenbits.xen.org/ xen master
 else
   cd xen
   git reset HEAD --hard
-  git pull --ff-only http://xenbits.xen.org/git-http/xen.git master
+  git pull --ff-only git://xenbits.xen.org/xen.git master
   cd ..
 fi
 
@@ -78,4 +78,13 @@ for i in ../patches/xen*.patch; do
   fi
 done
 cd ..
+
+# Clone the xen-qemu upstream now, so we can disable it later
+if [ ! -d qemu-xen ]; then
+  git clone --mirror git://xenbits.xen.org/qemu-xen.git
+else
+  cd qemu-xen
+  git remote update
+  cd ..
+fi
 
