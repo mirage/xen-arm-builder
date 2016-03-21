@@ -62,6 +62,10 @@ rsync -av ${WRKDIR}/linux-arm-modules/ /mnt/
 # target after we boot (for now).
 rsync -av --exclude='.git/' ${WRKDIR}/xen/ /mnt/usr/src/xen/
 
+# Copy the config.cache file to the /usr/src/xen directory so it can be used as 
+# the configuration for the xen-tools cross compilation.
+cp ${WRKDIR}/config/config.cache /mnt/usr/src/xen/
+
 chown -R root:root /mnt/lib/modules/
 cp ${WRKDIR}/templates/fstab etc/fstab
 cp ${WRKDIR}/templates/interfaces etc/network/interfaces
@@ -105,10 +109,6 @@ chroot /mnt apt-get -y install uuid-dev software-properties-common --no-install-
 # Packages required to compile the xen-tools natively when the board boots
 chroot /mnt apt-get -y install libc6-dev:arm64 libncurses-dev:arm64 uuid-dev:arm64 libglib2.0-dev:arm64 libssl-dev:arm64 libssl-dev:arm64 libaio-dev:arm64 libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf libpixman-1-dev --no-install-recommends
 
-# Install the necessar chroot cross compiling packages
-#chroot /mnt apt-get -y install crossbuild-essential-armhf --no-install-recommends
-#chroot /mnt apt-get -y install libc6-dev:armhf libncurses-dev:armhf uuid-dev:armhf libglib2.0-dev:armhf libssl-dev:armhf libssl-dev:armhf libaio-dev:armhf libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf --no-install-recommends
-
 rm usr/sbin/policy-rc.d
 
 echo UseDNS no >> etc/ssh/sshd_config
@@ -119,9 +119,9 @@ echo $BOARD > etc/hostname
 
 # Build and install the custom xen tools, this has to be done here so that the 
 # tools are linking against the correct libraries
-#chroot /mnt cd /usr/src/xen && CONFIG_SITE=/etc/dpkg-cross/cross-config.armhf ./configure --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
-#chroot /mnt cd /usr/src/xen && make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32
-#chroot /mnt cd /usr/src/xen && make install-tools
+chroot /mnt cd /usr/src/xen && CONFIG_SITE=/usr/src/xen/config.cache ./configure --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
+chroot /mnt cd /usr/src/xen && make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32
+chroot /mnt cd /usr/src/xen && make install-tools
 
 # Mirage user
 chroot /mnt userdel -r linaro
