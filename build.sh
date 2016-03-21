@@ -102,6 +102,9 @@ chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev lib
 chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
 chroot /mnt apt-get -y install uuid-dev software-properties-common --no-install-recommends
 
+# Packages required to compile the xen-tools natively when the board boots
+chroot /mnt apt-get -y install libc6-dev:arm64 libncurses-dev:arm64 uuid-dev:arm64 libglib2.0-dev:arm64 libssl-dev:arm64 libssl-dev:arm64 libaio-dev:arm64 libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf libpixman-1-dev --no-install-recommends
+
 # Install the necessar chroot cross compiling packages
 #chroot /mnt apt-get -y install crossbuild-essential-armhf --no-install-recommends
 #chroot /mnt apt-get -y install libc6-dev:armhf libncurses-dev:armhf uuid-dev:armhf libglib2.0-dev:armhf libssl-dev:armhf libssl-dev:armhf libaio-dev:armhf libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf --no-install-recommends
@@ -122,8 +125,22 @@ echo $BOARD > etc/hostname
 
 # Mirage user
 chroot /mnt userdel -r linaro
-chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
-sed -i "s/linaro-developer/$BOARD/" etc/hosts
+chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage" sed -i "s/linaro-developer/$BOARD/" etc/hosts 
+
+# the resize application isn't on this image, so use a bash equivalent
+cat >> /home/mirage/.profile <<EOF
+
+if [ -n "$PS1" ]; then
+    # bash equivalent of the "resize" command
+    echo -en "\e[18t" # returns \e[8;??;??t
+    IFS='[;'
+    read -d t -s esc params
+    set -- $params
+    [ $# = 3 -a "$1" = 8 ] && shift
+    [ $# != 2 ] && echo error >&2 && exit 1
+    stty rows "$1" cols "$2"
+fi
+EOF
 
 # OPAM init
 OPAM_ROOT=/home/mirage/.opam
