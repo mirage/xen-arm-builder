@@ -62,6 +62,9 @@ rsync -av ${WRKDIR}/linux-arm-modules/ /mnt/
 # target after we boot (for now).
 rsync -av --exclude='.git/' ${WRKDIR}/xen/ /mnt/usr/src/xen/
 
+# Copy the qemu-xen repo over to the source directory
+rsync -av ${WRKDIR}/qemu-xen.git/ /mnt/usr/src/qemu-xen.git/
+
 # Copy the config.cache file to the /usr/src/xen directory so it can be used as 
 # the configuration for the xen-tools cross compilation.
 cp ${WRKDIR}/config/config.cache /mnt/usr/src/xen/
@@ -118,8 +121,8 @@ sed -i "s/linaro-developer/$BOARD/" etc/hosts
 echo $BOARD > etc/hostname
 
 # Fix some syslog deficiencies with the rsyslog daemon from the base FS.
-sed -i "s/\s+create_xconsole$/d" /mnt/etc/init.d/rsyslog
-sed -i "65,68s/^/#/d" /mnt/etc/rsyslog.d/50-default.conf
+sed -i "/\s+create_xconsole$/d" /mnt/etc/init.d/rsyslog
+sed -i "65,68s/^/#/" /mnt/etc/rsyslog.d/50-default.conf
 chroot /mnt touch /var/log/syslog
 chroot /mnt chown syslog.adm /var/log/syslog
 
@@ -132,7 +135,7 @@ update-rc.d -f xen remove
 update-rc.d -f xendomains remove
 
 cd /usr/src/xen
-CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
+CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb QEMU_UPSTREAM_URL=/usr/src/qemu-xen.git --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
 make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32
 make make -C tools install
 
@@ -143,7 +146,7 @@ EOF
 
 # Mirage user
 chroot /mnt userdel -r linaro
-chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage" sed -i "s/linaro-developer/$BOARD/" etc/hosts 
+chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
 
 # the resize application isn't on this image, so use a bash equivalent
 chroot /mnt cat >> /home/mirage/.profile <<EOF
