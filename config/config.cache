@@ -186,7 +186,7 @@ ax_cv_pthread_flags=${ax_cv_pthread_flags=-pthread}
 ax_cv_ptyfuncs_libs=${ax_cv_ptyfuncs_libs=-lutil}
 ax_cv_python_fortify=${ax_cv_python_fortify=yes}
 ax_cv_rpath=${ax_cv_rpath=n}
-ax_cv_seabios=${ax_cv_seabios=y}
+ax_cv_seabios=${ax_cv_seabios=n}
 ax_cv_systemd=${ax_cv_systemd=n}
 ax_cv_xsmpolicy=${ax_cv_xsmpolicy=y}
 pkg_cv_glib_CFLAGS=${pkg_cv_glib_CFLAGS='-I/usr/include/glib-2.0 -I/usr/lib/arm-linux-gnueabihf/glib-2.0/include  '}
