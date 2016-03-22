@@ -37,11 +37,11 @@ else
 fi
 
 if [ ! -d linux ]; then
-  git clone https://github.com/torvalds/linux.git -b v4.5-rc7
+  git clone https://github.com/torvalds/linux.git -b v4.5
 else
   cd linux
   git reset HEAD --hard
-  git pull --ff-only https://github.com/torvalds/linux.git v4.5-rc7
+  git pull --ff-only https://github.com/torvalds/linux.git v4.5
   cd ..
 fi
 
