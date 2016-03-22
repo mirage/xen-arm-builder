@@ -25,6 +25,14 @@ packages using `apt-get`).
 toolchain instructions to install the **emdebian-archive-keyring**
 package and the emdebian.org apt source.
 
+   Note: Currently, the debian/ubuntu cross-compiler installed is gcc version
+         4.8 which fails to compile the Linux and Xen kernels correctly.
+         Instead it is recommended to go directly to
+         [linaro](http://www.linaro.org/downloads/) and download the latest
+         Linux little-endian compiler.  The
+         gcc-linaro-5.1-2015.08-x86_64_arm-linux-gnueabihf version has been
+         verified to work correctly.
+
 3. Download the dependencies (this will clone all the relevant repositories):
 
          $ make clone
