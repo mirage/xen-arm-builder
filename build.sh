@@ -117,9 +117,13 @@ echo UseDNS no >> etc/ssh/sshd_config
 sed -i "s/linaro-developer/$BOARD/" etc/hosts
 echo $BOARD > etc/hostname
 
+# Allow Linux to fix filesystems if errors are found when it is trying to mount
+# them
+sed -i "s/#FSCKFIX=no/FSCKFIX=yes/" etc/default/rcS
+
 # Fix some syslog deficiencies with the rsyslog daemon from the base FS.
-sed -i "/\s+create_xconsole$/d" /mnt/etc/init.d/rsyslog
-sed -i "65,68s/^/#/" /mnt/etc/rsyslog.d/50-default.conf
+sed -i "/\s+create_xconsole$/d" etc/init.d/rsyslog
+sed -i "65,68s/^/#/" etc/rsyslog.d/50-default.conf
 chroot /mnt touch /var/log/syslog
 chroot /mnt chown syslog.adm /var/log/syslog
 
@@ -146,7 +150,7 @@ chroot /mnt userdel -r linaro
 chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
 
 # the resize application isn't on this image, so use a bash equivalent
-chroot /mnt cat >> /home/mirage/.profile <<EOF
+chroot /mnt cat >> home/mirage/.profile <<EOF
 
 if [ -n "$PS1" ]; then
     # bash equivalent of the "resize" command
