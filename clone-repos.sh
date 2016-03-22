@@ -36,7 +36,6 @@ else
   cd ..
 fi
 
-# Use the v4.5-rc7 because v4.5 has a bug that breaks the ethernet phy
 if [ ! -d linux ]; then
   git clone https://github.com/torvalds/linux.git -b v4.5-rc7
 else
@@ -78,13 +77,4 @@ for i in ../patches/xen*.patch; do
   fi
 done
 cd ..
-
-# Clone the xen-qemu upstream now, so we can disable it later
-if [ ! -d qemu-xen ]; then
-  git clone --mirror git://xenbits.xen.org/qemu-xen.git
-else
-  cd qemu-xen
-  git remote update
-  cd ..
-fi
 
