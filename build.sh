@@ -134,7 +134,7 @@ update-rc.d -f xendomains remove
 cd /usr/src/xen
 CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
 make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32
-make make -C tools install
+make -C tools install
 
 echo "Enabling new Xen services"
 update-rc.d xencommons defaults 19 81
