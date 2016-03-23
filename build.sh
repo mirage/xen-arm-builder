@@ -152,15 +152,15 @@ chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password 
 # the resize application isn't on this image, so use a bash equivalent
 chroot /mnt cat >> home/mirage/.profile <<EOF
 
-if [ -n "$PS1" ]; then
+if [ -n "\$PS1" ]; then
     # bash equivalent of the "resize" command
     echo -en "\e[18t" # returns \e[8;??;??t
     IFS='[;'
     read -d t -s esc params
-    set -- $params
-    [ $# = 3 -a "$1" = 8 ] && shift
-    [ $# != 2 ] && echo error >&2 && exit 1
-    stty rows "$1" cols "$2"
+    set -- \$params
+    [ \$# = 3 -a "\$1" = 8 ] && shift
+    [ \$# != 2 ] && echo error >&2 && exit 1
+    stty rows "\$1" cols "\$2"
 fi
 EOF
 
@@ -170,6 +170,27 @@ OPAM_REPO=/home/mirage/git/opam-repository
 git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
 chroot /mnt chown -R mirage ${OPAM_REPO}
 chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
-# chroot /mnt opam repo add mirage https://github.com/mirage/mirage-dev.git --root=${OPAM_ROOT}
-# chroot /mnt opam update --root=${OPAM_ROOT} # due to a bug in 1.1.1 (fixed in 1.2)
+chroot /mnt opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git --root=${OPAM_ROOT}
+chroot /mnt opam update --root=${OPAM_ROOT}
+
+# opam install can fail occasionally when it is unable to download a package.  
+# In that case it returns error 66 to the shell.  So allow up to 3 retries when 
+# doing the "opam install" step.
+chroot /mnt /bin/bash -ex <<EOF
+for i in {1..3}; do
+    status=$(opam install -y mirage --root=${OPAM_ROOT})
+    if [ $status -eq 0]; then
+        echo "opam install success"
+        break
+    elif [ $status -eq 66]; then
+        echo "opam package download failure ($status), retrying..."
+    else
+        echo "opam install failure ($status), exiting!"
+    fi
+done
+EOF
+
+# Ensure that the opam installed applications are in the path by default.
+echo -e "\neval \$(opam config env)" >> home/mirage/.bashrc
+
 chroot /mnt chown -R mirage /home/mirage
