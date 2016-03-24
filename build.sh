@@ -170,22 +170,27 @@ OPAM_REPO=/home/mirage/git/opam-repository
 git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
 chroot /mnt chown -R mirage ${OPAM_REPO}
 chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
-chroot /mnt opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git --root=${OPAM_ROOT}
-chroot /mnt opam update --root=${OPAM_ROOT}
 
 # opam install can fail occasionally when it is unable to download a package.  
 # In that case it returns error 66 to the shell.  So allow up to 3 retries when 
 # doing the "opam install" step.
+#
+# NOTE: the "opam repo add" command is run in the bash shell because for some 
+# reason it doesn't correctly reference the ${OPAM_ROOT} path when executed with 
+# "chroot /mnt opam repo add..."
 chroot /mnt /bin/bash -ex <<EOF
+opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git --root=${OPAM_ROOT}
+opam update --root=${OPAM_ROOT}
 for i in {1..3}; do
-    status=$(opam install -y mirage --root=${OPAM_ROOT})
-    if [ $status -eq 0]; then
+    opam install -y mirage --root=${OPAM_ROOT}
+    status=\$?
+    if [ \$status -eq 0]; then
         echo "opam install success"
         break
-    elif [ $status -eq 66]; then
-        echo "opam package download failure ($status), retrying..."
+    elif [ \$status -eq 66]; then
+        echo "opam package download failure (\$status), retrying..."
     else
-        echo "opam install failure ($status), exiting!"
+        echo "opam install failure (\$status), exiting!"
     fi
 done
 EOF
