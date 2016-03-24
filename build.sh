@@ -4,7 +4,7 @@
 # sudo apt-get install kpartx sfdisk curl
 IMG=${BOARD}.img
 rm -f $IMG
-qemu-img create $IMG 2G
+qemu-img create $IMG 3G
 parted ${IMG} --script -- mklabel msdos
 parted ${IMG} --script -- mkpart primary fat32 2048s 264191s
 parted ${IMG} --script -- mkpart primary ext4 264192s -1s
@@ -179,18 +179,19 @@ chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
 # reason it doesn't correctly reference the ${OPAM_ROOT} path when executed with 
 # "chroot /mnt opam repo add..."
 chroot /mnt /bin/bash -ex <<EOF
-opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git --root=${OPAM_ROOT}
-opam update --root=${OPAM_ROOT}
+export OPAMROOT=${OPAM_ROOT}
+opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git
+opam update
 for i in {1..3}; do
-    opam install -y mirage --root=${OPAM_ROOT}
+    opam install -y depext mirage mirage-console
     status=\$?
     if [ \$status -eq 0]; then
-        echo "opam install success"
+        echo "opam install[\$i] success"
         break
     elif [ \$status -eq 66]; then
-        echo "opam package download failure (\$status), retrying..."
+        echo "opam package download failure[\$i] (\$status), retrying..."
     else
-        echo "opam install failure (\$status), exiting!"
+        echo "opam install failure[\$i] (\$status), exiting!"
     fi
 done
 EOF
