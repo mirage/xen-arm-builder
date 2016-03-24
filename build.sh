@@ -182,18 +182,21 @@ chroot /mnt /bin/bash -ex <<EOF
 export OPAMROOT=${OPAM_ROOT}
 opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git
 opam update
+status=1
 for i in {1..3}; do
     opam install -y depext mirage mirage-console
     status=\$?
-    if [ \$status -eq 0]; then
-        echo "opam install[\$i] success"
-        break
-    elif [ \$status -eq 66]; then
-        echo "opam package download failure[\$i] (\$status), retrying..."
+    if [ \$status -eq 0 ]; then
+        echo "opam install \$i success"
+        exit \$status
+    elif [ \$status -eq 66 ]; then
+        echo "opam package download failure \$i (\$status), retrying..."
     else
-        echo "opam install failure[\$i] (\$status), exiting!"
+        echo "opam install failure \$i (\$status), exiting!"
+        exit \$status
     fi
 done
+exit \$status
 EOF
 
 # Ensure that the opam installed applications are in the path by default.
