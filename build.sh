@@ -184,7 +184,7 @@ opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest
 opam update
 status=1
 for i in {1..3}; do
-    opam install -y depext mirage mirage-console
+    opam install -y depext mirage-console-xen mirage-xen mirage
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam install \$i success"
@@ -200,6 +200,6 @@ exit \$status
 EOF
 
 # Ensure that the opam installed applications are in the path by default.
-echo -e "\neval \$(opam config env)" >> home/mirage/.bashrc
+echo "eval \$(opam config env)" >> home/mirage/.bashrc
 
 chroot /mnt chown -R mirage /home/mirage
