@@ -140,8 +140,8 @@ update-rc.d -f xendomains remove
 
 cd /usr/src/xen
 CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb QEMU_UPSTREAM_URL=/usr/src/qemu-xen.git --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
-make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32
-make -C tools install
+make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen.git
+make -C tools install QEMU_UPSTREAM_URL=/usr/src/qemu-xen.git
 
 echo "Enabling new Xen services"
 update-rc.d xencommons defaults 19 81
