@@ -173,36 +173,19 @@ OPAM_REPO=/home/mirage/git/opam-repository
 git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
 chroot /mnt chown -R mirage ${OPAM_REPO}
 chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
+chroot /mnt opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git --root=${OPAM_ROOT}
+chroot /mnt opam update --root=${OPAM_ROOT}
 
-# opam install can fail occasionally when it is unable to download a package.  
-# In that case it returns error 66 to the shell.  So allow up to 3 retries when 
-# doing the "opam install" step.
+# Because all of the packages which contain compiled components have not been 
+# set up to be configured for cross-compilation properly, we are unable to 
+# install the opam packages in this script.  So the following command must be 
+# run the first time the board boots to be able to use mirage:
 #
-# NOTE: the "opam repo add" command is run in the bash shell because for some 
-# reason it doesn't correctly reference the ${OPAM_ROOT} path when executed with 
-# "chroot /mnt opam repo add..."
-chroot /mnt /bin/bash -ex <<EOF
-export OPAMROOT=${OPAM_ROOT}
-opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git
-opam update
-status=1
-for i in {1..3}; do
-    opam install -y depext mirage-console-xen mirage-xen mirage
-    status=\$?
-    if [ \$status -eq 0 ]; then
-        echo "opam install \$i success"
-        exit \$status
-    elif [ \$status -eq 66 ]; then
-        echo "opam package download failure \$i (\$status), retrying..."
-    else
-        echo "opam install failure \$i (\$status), exiting!"
-        exit \$status
-    fi
-done
-exit \$status
-EOF
+# $ opam install -y depext mirage-console-xen mirage-xen mirage
+#
+# This isn't in the 1stboot script because it can take a while to complete.
 
-# Ensure that the opam installed applications are in the path by default.
+# applications are in the path by default.
 echo "eval \$(opam config env)" >> home/mirage/.bashrc
 
 chroot /mnt chown -R mirage /home/mirage
