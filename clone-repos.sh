@@ -83,7 +83,7 @@ cd ..
 if [ ! -d qemu-xen.git ]; then
   git clone --mirror git://xenbits.xen.org/qemu-xen.git
 else
-  cd qemu-xen
+  cd qemu-xen.git
   git remote update
   cd ..
 fi
