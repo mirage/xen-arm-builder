@@ -19,22 +19,22 @@ else
     sudo apt-get -y install rsync git build-essential qemu kpartx binfmt-support qemu-user-static python bc parted dosfstools curl device-tree-compiler libncurses5-dev
 fi
 
-if [ ! -d u-boot ]; then
-  git clone --depth 1 -b v2016.03 git://git.denx.de/u-boot.git || echo "git failed with status: $?"
-else
-  cd u-boot
-  git pull --ff-only origin v2016.03 || echo "git failed with status: $?"
-  cd ..
-fi
+# Clones or updates git repos depending on if they already exist or not.
+# ex: clone_branch <dir> <branch or tag> <repo_url>
+clone_branch () {
+  if [ ! -d ${1} ]; then
+    git clone --depth 1 -b ${2} ${3}.git || echo "git failed with status: $?"
+  else
+    cd $1
+    git reset HEAD --hard
+    git pull --ff-only ${3} ${2} || echo "git failed with status: $?"
+    cd ..
+  fi
+}
 
-if [ ! -d linux ]; then
-  git clone --depth 1 https://github.com/torvalds/linux.git -b v4.5 || echo "git failed with status: $?"
-else
-  cd linux
-  git reset HEAD --hard
-  git pull --ff-only https://github.com/torvalds/linux.git v4.5 || echo "git failed with status: $?"
-  cd ..
-fi
+clone_branch u-boot v2016.03 git://git.denx.de/u-boot.git
+
+clone_branch linux v4.5 https://github.com/torvalds/linux.git
 
 cd linux
 for i in ../patches/linux*.patch; do
@@ -44,22 +44,9 @@ for i in ../patches/linux*.patch; do
 done
 cd ..
 
-if [ ! -d linux-firmware ]; then
-  git clone --depth 1 -b master https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git || echo "git failed with status: $?"
-else
-  cd linux-firmware
-  git pull --ff-only https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git master || echo "git failed with status: $?"
-  cd ..
-fi
+clone_branch linux-firmware master https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 
-if [ ! -d xen ]; then
-  git clone --depth 1 -b master git://xenbits.xen.org/xen.git || echo "git failed with status: $?"
-else
-  cd xen
-  git reset HEAD --hard
-  git pull --ff-only git://xenbits.xen.org/xen.git master || echo "git failed with status: $?"
-  cd ..
-fi
+clone_branch xen master git://xenbits.xen.org/xen.git
 
 cd xen
 for i in ../patches/xen*.patch; do
@@ -71,10 +58,4 @@ cd ..
 
 # Clone the xen-qemu upstream now, so we can have the xen tools build clone from 
 # a local repo later.
-if [ ! -d qemu-xen.git ]; then
-  git clone --mirror git://xenbits.xen.org/qemu-xen.git || echo "git failed with status: $?"
-else
-  cd qemu-xen.git
-  git remote update || echo "git failed with status: $?"
-  cd ..
-fi
+clone_branch qemu-xen master git://xenbits.xen.org/qemu-xen.git

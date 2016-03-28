@@ -63,7 +63,7 @@ rsync -av ${WRKDIR}/linux-arm-modules/ /mnt/
 rsync -av --exclude='.git/' ${WRKDIR}/xen/ /mnt/usr/src/xen/
 
 # Copy the qemu-xen repo over to the source directory
-rsync -av ${WRKDIR}/qemu-xen.git/ /mnt/usr/src/qemu-xen.git/
+rsync -av ${WRKDIR}/qemu-xen/ /mnt/usr/src/qemu-xen/
 
 # Copy the config.cache file to the /usr/src/xen directory so it can be used as 
 # the configuration for the xen-tools cross compilation.
@@ -139,9 +139,9 @@ update-rc.d -f xen remove
 update-rc.d -f xendomains remove
 
 cd /usr/src/xen
-CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb QEMU_UPSTREAM_URL=/usr/src/qemu-xen.git --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
-make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen.git
-make -C tools install QEMU_UPSTREAM_URL=/usr/src/qemu-xen.git
+CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb QEMU_UPSTREAM_URL=/usr/src/qemu-xen --prefix=/usr --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
+make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen
+make -C tools install QEMU_UPSTREAM_URL=/usr/src/qemu-xen
 
 echo "Enabling new Xen services"
 update-rc.d xencommons defaults 19 81

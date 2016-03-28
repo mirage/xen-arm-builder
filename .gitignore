@@ -3,7 +3,7 @@ linux-firmware/
 linux/
 u-boot/
 xen/
-qemu-xen.git/
+qemu-xen/
 boot/
 linux-arm-modules/
 *.img
