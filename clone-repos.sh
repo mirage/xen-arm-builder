@@ -20,7 +20,7 @@ else
 fi
 
 clone_branch () {
-  git clone ${1}/${2}.git
+  git clone --depth 1 ${1}/${2}.git
   cd $2
   if [ "$3" != "master" ]; then
     git checkout -b $3 origin/$3
@@ -29,7 +29,7 @@ clone_branch () {
 }
 
 if [ ! -d u-boot ]; then
-  git clone git://git.denx.de/u-boot.git -b v2016.03
+  git clone --depth 1 git://git.denx.de/u-boot.git -b v2016.03
 else
   cd u-boot
   git pull --ff-only origin v2016.03
@@ -37,7 +37,7 @@ else
 fi
 
 if [ ! -d linux ]; then
-  git clone https://github.com/torvalds/linux.git -b v4.5
+  git clone --depth 1 https://github.com/torvalds/linux.git -b v4.5
 else
   cd linux
   git reset HEAD --hard
@@ -62,7 +62,7 @@ else
 fi
 
 if [ ! -d xen ]; then
-  clone_branch git://xenbits.xen.org/ xen master
+  clone_branch git://xenbits.xen.org xen master
 else
   cd xen
   git reset HEAD --hard
