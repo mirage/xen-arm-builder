@@ -78,3 +78,12 @@ for i in ../patches/xen*.patch; do
 done
 cd ..
 
+# Clone the xen-qemu upstream now, so we can have the xen tools build clone from 
+# a local repo later.
+if [ ! -d qemu-xen ]; then
+  git clone --mirror git://xenbits.xen.org/qemu-xen.git
+else
+  cd qemu-xen
+  git remote update
+  cd ..
+fi
