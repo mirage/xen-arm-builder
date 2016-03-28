@@ -173,14 +173,14 @@ OPAMREPO=/home/mirage/git/opam-repository
 git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAMREPO}
 chroot /mnt chown -R mirage ${OPAMREPO}
 chroot /mnt opam init ${OPAMREPO} -y --root=${OPAMROOT}
-chroot /mnt opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git --root=${OPAMROOT}
-chroot /mnt opam update --root=${OPAMROOT}
 
 # Because all of the packages which contain compiled components have not been 
 # set up to be configured for cross-compilation properly, we are unable to 
-# install the opam packages in this script.  So the following command must be 
+# install the opam packages in this script.  So the following commands must be 
 # run the first time the board boots to be able to use mirage:
 #
+# $ opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git
+# $ opam update
 # $ opam install -y depext mirage-console-xen mirage-xen mirage
 #
 # This isn't in the 1stboot script because it can take a while to complete.
