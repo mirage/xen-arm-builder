@@ -23,7 +23,7 @@ fi
 # ex: clone_branch <dir> <branch or tag> <repo_url>
 clone_branch () {
   if [ ! -d ${1} ]; then
-    git clone --depth 1 -b ${2} ${3}.git || echo "git failed with status: $?"
+    git clone --depth 1 -b ${2} ${3} || echo "git failed with status: $?"
   else
     cd $1
     git reset HEAD --hard
