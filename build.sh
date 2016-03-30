@@ -181,7 +181,7 @@ chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
 # NOTE: the "opam repo add" command is run in the bash shell because for some 
 # reason it doesn't correctly reference the ${OPAM_ROOT} path when executed with 
 # "chroot /mnt opam repo add..."
-chroot /mnt /bin/bash -ex <<EOF
+chroot /mnt /bin/bash -x <<EOF
 export OPAMROOT=${OPAM_ROOT}
 opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git
 opam update
