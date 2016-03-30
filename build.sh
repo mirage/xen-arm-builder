@@ -63,7 +63,7 @@ rsync -av ${WRKDIR}/linux-arm-modules/ /mnt/
 rsync -av --exclude='.git/' ${WRKDIR}/xen/ /mnt/usr/src/xen/
 
 # Copy the qemu-xen repo over to the source directory
-rsync -av ${WRKDIR}/qemu-xen/ /mnt/usr/src/qemu-xen/
+rsync -av --exclude='.git/ '${WRKDIR}/qemu-xen/ /mnt/usr/src/qemu-xen/
 
 # Copy the config.cache file to the /usr/src/xen directory so it can be used as 
 # the configuration for the xen-tools cross compilation.
