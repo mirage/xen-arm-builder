@@ -174,13 +174,6 @@ git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
 chroot /mnt chown -R mirage ${OPAM_REPO}
 chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
 
-# We must keep mirage at version 2.7.2 for now because 2.7.3 generates incorrect 
-# makefiles for arm.
-chroot /mnt /bin/bash -ex <<EOF
-export OPAMROOT=${OPAM_ROOT}
-opam pin add mirage https://github.com/mirage/mirage.git#v2.7.2
-EOF
-
 # opam install can fail occasionally when it is unable to download a package.  
 # In that case it returns error 66 to the shell.  So allow up to 3 retries when 
 # doing the "opam install" step.
