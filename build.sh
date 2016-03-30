@@ -176,6 +176,14 @@ chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
 
 # We must keep mirage at version 2.7.2 for now because 2.7.3 generates incorrect 
 # makefiles for arm.
+chroot /mnt /bin/bash -ex <<EOF
+export OPAMROOT=${OPAM_ROOT}
+opam pin add mirage https://github.com/mirage/mirage.git#v2.7.2
+EOF
+
+# opam install can fail occasionally when it is unable to download a package.  
+# In that case it returns error 66 to the shell.  So allow up to 3 retries when 
+# doing the "opam install" step.
 #
 # NOTE: the "opam repo add" command is run in the bash shell because for some 
 # reason it doesn't correctly reference the ${OPAM_ROOT} path when executed with 
@@ -184,31 +192,9 @@ chroot /mnt /bin/bash -ex <<EOF
 export OPAMROOT=${OPAM_ROOT}
 opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git
 opam update
-opam pin add mirage https://github.com/mirage/mirage.git#v2.7.2
-EOF
-
-# opam install can fail occasionally when it is unable to download a package.  
-# In that case it returns error 66 to the shell.  So allow up to 3 retries when 
-# doing the "opam install" step.
-#
-# The following packages are the bare minimum that should be installed:
-#
-# mirage (installed above by the pin command)
-# mirage-xen
-# mirage-console-xen
-#
-# The following packages are installed when mirage is run to configure a xen 
-# target, so we will just install them now:
-#
-# depext
-# mirage-console
-# mirage-bootvar-xen
-#
-chroot /mnt /bin/bash -ex <<EOF
-export OPAMROOT=${OPAM_ROOT}
 status=1
 for i in {1..3}; do
-    opam install -y mirage-xen mirage-console-xen depext mirage-bootvar-xen mirage-console
+    opam install -y depext mirage-console-xen mirage-xen mirage
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam install \$i success"
