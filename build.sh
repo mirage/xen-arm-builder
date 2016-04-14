@@ -187,7 +187,7 @@ opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest
 opam update
 status=1
 for i in {1..3}; do
-    opam install -y depext mirage-console-xen mirage-xen mirage
+    opam install -y depext vchan mirage-console mirage-bootvar-xen mirage-xen mirage
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam install \$i success"
