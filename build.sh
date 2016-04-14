@@ -130,6 +130,11 @@ sed -i "65,68s/^/#/" etc/rsyslog.d/50-default.conf
 chroot /mnt touch /var/log/syslog
 chroot /mnt chown syslog.adm /var/log/syslog
 
+# Suppress the avahi-daemon messages
+sed -i "4i" etc/rsyslog.d/50-default.conf
+sed -i "5i# Discard avahi-daemon messages, they keep flooding the syslog" etc/rsyslog.d/50-default.conf
+sed -i "6i:syslogtag, contains, "avahi-daemon" stop" etc/rsyslog.d/50-default.conf
+
 # Build and install the custom xen tools, this has to be done here so that the 
 # tools are linking against the correct libraries, then uninstall the old xen 
 # service and install the new ones.
