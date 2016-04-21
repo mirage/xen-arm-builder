@@ -59,6 +59,3 @@ cd ..
 # Clone the xen-qemu upstream now, so we can have the xen tools build clone from 
 # a local repo later.
 clone_branch qemu-xen master git://xenbits.xen.org/qemu-xen.git
-
-# Clone the mini-os from talex5 now so we have stubdom support for ARM.
-clone_branch mini-os master https://github.com/talex5/mini-os.git

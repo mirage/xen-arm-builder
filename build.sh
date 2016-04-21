@@ -65,9 +65,6 @@ rsync -av --exclude='.git/' ${WRKDIR}/xen/ /mnt/usr/src/xen/
 # Copy the qemu-xen repo over to the source directory
 rsync -av --exclude='.git/' ${WRKDIR}/qemu-xen/ /mnt/usr/src/qemu-xen/
 
-# Copy the mini-os repo over to the source directory
-rsync -av --exclude='.git/' ${WRKDIR}/mini-os/ /mnt/usr/src/mini-os/
-
 # Copy the config.cache file to the /usr/src/xen directory so it can be used as 
 # the configuration for the xen-tools cross compilation.
 cp ${WRKDIR}/config/config.cache /mnt/usr/src/xen/
@@ -145,10 +142,11 @@ update-rc.d -f xen remove
 update-rc.d -f xendomains remove
 
 cd /usr/src/xen
-CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=/usr/src/mini-os --prefix=/usr --disable-ocamltools --enable-stubdom --enable-c-stubdom --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
+CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master --prefix=/usr --disable-ocamltools --enable-stubdom --enable-c-stubdom --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
 make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=/usr/src/mini-os
 make -C tools install QEMU_UPSTREAM_URL=/usr/src/qemu-xen
-make -C stubdom install MINIOS_UPSTREAM_URL=/usr/src/mini-os
+make dist-stubdom MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
+make -C stubdom install MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
 
 echo "Enabling new Xen services"
 update-rc.d xencommons defaults 19 81
