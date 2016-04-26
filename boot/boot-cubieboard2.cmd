@@ -37,6 +37,6 @@ fatload mmc 0 ${kernel_addr_r} /vmlinuz
 fdt mknod /chosen module@0
 fdt set /chosen/module@0 compatible "xen,linux-zimage" "xen,multiboot-module"
 fdt set /chosen/module@0 reg <${kernel_addr_r} 0x${filesize} >
-fdt set /chosen/module@0 bootargs "console=hvc0 ro root=/dev/mmcblk0p2 rootwait clk_ignore_unused"
+fdt set /chosen/module@0 bootargs "console=hvc0 ro root=/dev/mmcblk0p2 rootwait clk_ignore_unused max_loop=128"
 
 bootz ${xen_addr_r} - ${fdt_addr}
