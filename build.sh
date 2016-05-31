@@ -205,7 +205,7 @@ for i in {1..3}; do
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam pin \$i success"
-        exit \$status
+        break
     elif [ \$status -eq 66 ]; then
         echo "opam package download failure \$i (\$status), retrying..."
     else
@@ -213,13 +213,12 @@ for i in {1..3}; do
         exit \$status
     fi
 done
-status=1
 for i in {1..3}; do
     opam install -y depext vchan mirage-console mirage-bootvar-xen mirage-xen
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam install \$i success"
-        exit \$status
+        break
     elif [ \$status -eq 66 ]; then
         echo "opam package download failure \$i (\$status), retrying..."
     else
