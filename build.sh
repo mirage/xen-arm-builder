@@ -25,15 +25,18 @@ dd if=u-boot/build-${BOARD}/u-boot-sunxi-with-spl.bin of=${LOOPDEV} bs=1024 seek
 SIZE=`fdisk -l ${LOOPDEV} | grep Disk | grep bytes | awk '{print $5}'`
 CYLINDERS=`echo $SIZE/255/63/512 | bc`
 WRKDIR=`pwd`
+MNTBOOT=/mnt/xen-arm-boot
+MNTROOTFS=/mnt/xen-arm-rootfs
 
 finish () {
   cd ${WRKDIR}
   sleep 5
-  umount /mnt/proc || true
-  umount /mnt/dev || true
-  umount /mnt || true
+  umount ${MNTROOTFS}/proc || true
+  umount ${MNTROOTFS}/dev || true
+  umount ${MNTROOTFS} || true
   kpartx -d ${LOOPDEV} || true
   losetup -d ${LOOPDEV} || true
+  rmdir ${MNTROOTFS}
 }
 
 trap finish EXIT
@@ -43,33 +46,36 @@ kpartx -avs ${LOOPDEV}
 mkfs.vfat ${MLOOPDEV}p1
 mkfs.ext4 ${MLOOPDEV}p2
 
-mount ${MLOOPDEV}p1 /mnt
-cp boot/boot-${BOARD}.scr /mnt/boot.scr
-cp linux/arch/arm/boot/zImage /mnt/vmlinuz
-cp linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb /mnt/
-cp linux/arch/arm/boot/dts/sun7i-a20-cubietruck.dtb /mnt/
-cp xen/xen/xen /mnt/
-umount /mnt
+mkdir ${MNTBOOT}
+mount ${MLOOPDEV}p1 ${MNTBOOT}
+cp boot/boot-${BOARD}.scr ${MNTBOOT}/boot.scr
+cp linux/arch/arm/boot/zImage ${MNTBOOT}/vmlinuz
+cp linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb ${MNTBOOT}/
+cp linux/arch/arm/boot/dts/sun7i-a20-cubietruck.dtb ${MNTBOOT}/
+cp xen/xen/xen ${MNTBOOT}/
+umount ${MNTBOOT}
+rmdir ${MNTBOOT}
 
-mount ${MLOOPDEV}p2 /mnt
-tar -C /mnt -xf $ROOTFS
-cd /mnt
+mkdir ${MNTROOTFS}
+mount ${MLOOPDEV}p2 ${MNTROOTFS}
+tar -C ${MNTROOTFS} -xf $ROOTFS
+cd ${MNTROOTFS}
 mv binary/* .
 rmdir binary
-rsync -av ${WRKDIR}/linux-arm-modules/ /mnt/
+rsync -av ${WRKDIR}/linux-arm-modules/ ${MNTROOTFS}/
 
 # Copy the xen source to the target filesystem so we can build the tools on the 
 # target after we boot (for now).
-rsync -av --exclude='.git/' ${WRKDIR}/xen/ /mnt/usr/src/xen/
+rsync -av --exclude='.git/' ${WRKDIR}/xen/ ${MNTROOTFS}/usr/src/xen/
 
 # Copy the qemu-xen repo over to the source directory
-rsync -av --exclude='.git/' ${WRKDIR}/qemu-xen/ /mnt/usr/src/qemu-xen/
+rsync -av --exclude='.git/' ${WRKDIR}/qemu-xen/ ${MNTROOTFS}/usr/src/qemu-xen/
 
 # Copy the config.cache file to the /usr/src/xen directory so it can be used as 
 # the configuration for the xen-tools cross compilation.
-cp ${WRKDIR}/config/config.cache /mnt/usr/src/xen/
+cp ${WRKDIR}/config/config.cache ${MNTROOTFS}/usr/src/xen/
 
-chown -R root:root /mnt/lib/modules/
+chown -R root:root ${MNTROOTFS}/lib/modules/
 cp ${WRKDIR}/templates/fstab etc/fstab
 cp ${WRKDIR}/templates/interfaces etc/network/interfaces
 rm -f etc/resolv.conf
@@ -83,34 +89,34 @@ for f in ${FIRMWARE}; do
 done
 
 # Copy kernel to dom0 so it can be used in guests
-cp ${WRKDIR}/linux/arch/arm/boot/zImage /mnt/root/dom0_kernel
+cp ${WRKDIR}/linux/arch/arm/boot/zImage ${MNTROOTFS}/root/dom0_kernel
 # Copy example scripts to /root
-cp -av ${WRKDIR}/templates/scripts /mnt/root
+cp -av ${WRKDIR}/templates/scripts ${MNTROOTFS}/root
 
 
 # Prevent services from starting while we build the image
 echo 'exit 101' > usr/sbin/policy-rc.d
 chmod a+x usr/sbin/policy-rc.d
 
-mount -o bind /proc /mnt/proc
-mount -o bind /dev /mnt/dev
+mount -o bind /proc ${MNTROOTFS}/proc
+mount -o bind /dev ${MNTROOTFS}/dev
 
 # Enable the cross compiling environment in this chroot
-#chroot /mnt dpkg --add-architecture armhf
+#chroot ${MNTROOTFS} dpkg --add-architecture armhf
 
-echo "deb http://ppa.launchpad.net/avsm/ocaml42+opam12/ubuntu trusty main" > /mnt/etc/apt/sources.list.d/ppa-opam.list
-chown root /mnt/etc/apt/sources.list.d/ppa-opam.list
+echo "deb http://ppa.launchpad.net/avsm/ocaml42+opam12/ubuntu trusty main" > ${MNTROOTFS}/etc/apt/sources.list.d/ppa-opam.list
+chown root ${MNTROOTFS}/etc/apt/sources.list.d/ppa-opam.list
 
-chroot /mnt apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
-chroot /mnt apt-get -y update
-chroot /mnt apt-get -y upgrade
-chroot /mnt apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
-chroot /mnt apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
-chroot /mnt apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
-chroot /mnt apt-get -y install uuid-dev software-properties-common --no-install-recommends
+chroot ${MNTROOTFS} apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
+chroot ${MNTROOTFS} apt-get -y update
+chroot ${MNTROOTFS} apt-get -y upgrade
+chroot ${MNTROOTFS} apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
+chroot ${MNTROOTFS} apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
+chroot ${MNTROOTFS} apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
+chroot ${MNTROOTFS} apt-get -y install uuid-dev software-properties-common --no-install-recommends
 
 # Packages required to compile the xen-tools natively when the board boots
-chroot /mnt apt-get -y install libc6-dev:armhf libncurses-dev:armhf uuid-dev:armhf libglib2.0-dev:armhf libssl-dev:armhf libssl-dev:armhf libaio-dev:armhf libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf libpixman-1-dev --no-install-recommends
+chroot ${MNTROOTFS} apt-get -y install libc6-dev:armhf libncurses-dev:armhf uuid-dev:armhf libglib2.0-dev:armhf libssl-dev:armhf libssl-dev:armhf libaio-dev:armhf libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf libpixman-1-dev --no-install-recommends
 
 rm usr/sbin/policy-rc.d
 
@@ -127,8 +133,8 @@ sed -i "s/#FSCKFIX=no/FSCKFIX=yes/" etc/default/rcS
 # Fix some syslog deficiencies with the rsyslog daemon from the base FS.
 sed -i "/\s+create_xconsole$/d" etc/init.d/rsyslog
 sed -i "65,68s/^/#/" etc/rsyslog.d/50-default.conf
-chroot /mnt touch /var/log/syslog
-chroot /mnt chown syslog.adm /var/log/syslog
+chroot ${MNTROOTFS} touch /var/log/syslog
+chroot ${MNTROOTFS} chown syslog.adm /var/log/syslog
 
 # Suppress the avahi-daemon messages
 sed -i "5i# Discard avahi-daemon messages, they keep flooding the syslog\n:syslogtag, contains, \"avahi-daemon\" stop\n" etc/rsyslog.d/50-default.conf
@@ -136,7 +142,7 @@ sed -i "5i# Discard avahi-daemon messages, they keep flooding the syslog\n:syslo
 # Build and install the custom xen tools, this has to be done here so that the 
 # tools are linking against the correct libraries, then uninstall the old xen 
 # service and install the new ones.
-chroot /mnt /bin/bash -ex <<EOF
+chroot ${MNTROOTFS} /bin/bash -ex <<EOF
 echo "Disabling old Xen services"
 update-rc.d -f xen remove
 update-rc.d -f xendomains remove
@@ -154,11 +160,11 @@ update-rc.d xendomains defaults 21 79
 EOF
 
 # Mirage user
-chroot /mnt userdel -r linaro
-chroot /mnt useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
+chroot ${MNTROOTFS} userdel -r linaro
+chroot ${MNTROOTFS} useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
 
 # the resize application isn't on this image, so use a bash equivalent
-chroot /mnt cat >> home/mirage/.profile <<EOF
+chroot ${MNTROOTFS} cat >> home/mirage/.profile <<EOF
 
 if [ -n "\$PS1" ]; then
     # bash equivalent of the "resize" command
@@ -175,9 +181,9 @@ EOF
 # OPAM init
 OPAM_ROOT=/home/mirage/.opam
 OPAM_REPO=/home/mirage/git/opam-repository
-git clone https://github.com/ocaml/opam-repository.git /mnt/${OPAM_REPO}
-chroot /mnt chown -R mirage ${OPAM_REPO}
-chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
+git clone https://github.com/ocaml/opam-repository.git ${MNTROOTFS}/${OPAM_REPO}
+chroot ${MNTROOTFS} chown -R mirage ${OPAM_REPO}
+chroot ${MNTROOTFS} opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
 
 # opam install can fail occasionally when it is unable to download a package.  
 # In that case it returns error 66 to the shell.  So allow up to 3 retries when 
@@ -185,8 +191,11 @@ chroot /mnt opam init ${OPAM_REPO} -y --root=${OPAM_ROOT}
 #
 # NOTE: the "opam repo add" command is run in the bash shell because for some 
 # reason it doesn't correctly reference the ${OPAM_ROOT} path when executed with 
-# "chroot /mnt opam repo add..."
-chroot /mnt /bin/bash -x <<EOF
+# "chroot ${MNTROOTFS} opam repo add..."
+#
+# Pin mirage to version 2.8.0 since later versions include a mirage-logs package
+# that is troublesome.
+chroot ${MNTROOTFS} /bin/bash -x <<EOF
 export OPAMROOT=${OPAM_ROOT}
 opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest-dev.git
 opam update
@@ -224,4 +233,4 @@ EOF
 # Ensure that the opam installed applications are in the path by default.
 echo "eval \$(opam config env)" >> home/mirage/.bashrc
 
-chroot /mnt chown -R mirage /home/mirage
+chroot ${MNTROOTFS} chown -R mirage /home/mirage
