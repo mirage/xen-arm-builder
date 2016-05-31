@@ -23,7 +23,7 @@ fi
 # ex: clone_branch <dir> <branch or tag> <repo_url>
 clone_branch () {
   if [ ! -d ${1} ]; then
-    git clone --depth 1 -b ${2} ${3} || echo "git failed with status: $?"
+    git clone --depth 1 -b ${2} ${3} ${1} || echo "git failed with status: $?"
   else
     cd $1
     git reset HEAD --hard
@@ -34,7 +34,7 @@ clone_branch () {
 
 clone_branch u-boot v2016.03 git://git.denx.de/u-boot.git
 
-clone_branch linux v4.5 https://github.com/torvalds/linux.git
+clone_branch linux linux-4.5.y git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
 
 cd linux
 for i in ../patches/linux*.patch; do

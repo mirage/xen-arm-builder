@@ -143,8 +143,8 @@ update-rc.d -f xendomains remove
 
 cd /usr/src/xen
 CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master --prefix=/usr --disable-ocamltools --enable-stubdom --enable-c-stubdom --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
-make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen
-make dist-stubdom CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
+make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen -j 4
+make dist-stubdom CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master -j 4
 make install-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
 make install-stubdom CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
 
@@ -192,7 +192,21 @@ opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest
 opam update
 status=1
 for i in {1..3}; do
-    opam install -y depext vchan mirage-console mirage-bootvar-xen mirage-xen mirage
+    opam pin add -y mirage 2.8.0
+    status=\$?
+    if [ \$status -eq 0 ]; then
+        echo "opam pin \$i success"
+        exit \$status
+    elif [ \$status -eq 66 ]; then
+        echo "opam package download failure \$i (\$status), retrying..."
+    else
+        echo "opam pin failure \$i (\$status), exiting!"
+        exit \$status
+    fi
+done
+status=1
+for i in {1..3}; do
+    opam install -y depext vchan mirage-console mirage-bootvar-xen mirage-xen
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam install \$i success"
