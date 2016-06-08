@@ -41,7 +41,7 @@ build:
 
 ## Get the latest Linaro root image
 $(ROOTFS):
-	curl -OL $(ROOTFSURL)/$(ROOTFS)
+	curl -OLf $(ROOTFSURL)/$(ROOTFS)
 
 ## Build the image file
 ${BOARD}.img: $(ROOTFS) $(TARGET_FILES)

@@ -32,6 +32,7 @@ finish () {
   cd ${WRKDIR}
   sleep 5
   umount ${MNTROOTFS}/proc || true
+  umount ${MNTROOTFS}/dev/pts || true
   umount ${MNTROOTFS}/dev || true
   umount ${MNTROOTFS} || true
   kpartx -d ${LOOPDEV} || true
@@ -100,6 +101,7 @@ chmod a+x usr/sbin/policy-rc.d
 
 mount -o bind /proc ${MNTROOTFS}/proc
 mount -o bind /dev ${MNTROOTFS}/dev
+mount -o bind /dev/pts ${MNTROOTFS}/dev/pts
 
 # Enable the cross compiling environment in this chroot
 #chroot ${MNTROOTFS} dpkg --add-architecture armhf
@@ -110,10 +112,12 @@ chown root ${MNTROOTFS}/etc/apt/sources.list.d/ppa-opam.list
 chroot ${MNTROOTFS} apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
 chroot ${MNTROOTFS} apt-get -y update
 chroot ${MNTROOTFS} apt-get -y upgrade
+chroot ${MNTROOTFS} apt-get -y purge xen-utils-common xen-utils-4.4
+chroot ${MNTROOTFS} apt-get -y autoremove
 chroot ${MNTROOTFS} apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
 chroot ${MNTROOTFS} apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
 chroot ${MNTROOTFS} apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
-chroot ${MNTROOTFS} apt-get -y install uuid-dev software-properties-common --no-install-recommends
+chroot ${MNTROOTFS} apt-get -y install uuid-dev software-properties-common libmysqlclient-dev bridge-utils --no-install-recommends
 
 # Packages required to compile the xen-tools natively when the board boots
 chroot ${MNTROOTFS} apt-get -y install libc6-dev:armhf libncurses-dev:armhf uuid-dev:armhf libglib2.0-dev:armhf libssl-dev:armhf libssl-dev:armhf libaio-dev:armhf libyajl-dev:armhf python gettext gcc git libpython2.7-dev:armhf libfdt-dev:armhf libpixman-1-dev --no-install-recommends
@@ -140,12 +144,11 @@ chroot ${MNTROOTFS} chown syslog.adm /var/log/syslog
 sed -i "5i# Discard avahi-daemon messages, they keep flooding the syslog\n:syslogtag, contains, \"avahi-daemon\" stop\n" etc/rsyslog.d/50-default.conf
 
 # Build and install the custom xen tools, this has to be done here so that the 
-# tools are linking against the correct libraries, then uninstall the old xen 
-# service and install the new ones.
+# tools are linking against the correct libraries, then install the new xen
+# service.  The update-rc.d command must be run manually since we're building
+# xen tools from source (normally this is done by a distribution-specific
+# project).
 chroot ${MNTROOTFS} /bin/bash -ex <<EOF
-echo "Disabling old Xen services"
-update-rc.d -f xen remove
-update-rc.d -f xendomains remove
 
 cd /usr/src/xen
 CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb QEMU_UPSTREAM_URL=/usr/src/qemu-xen MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master --prefix=/usr --disable-ocamltools --enable-stubdom --enable-c-stubdom --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
