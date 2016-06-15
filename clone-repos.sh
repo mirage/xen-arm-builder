@@ -55,7 +55,3 @@ for i in ../patches/xen*.patch; do
   fi
 done
 cd ..
-
-# Clone the xen-qemu upstream now, so we can have the xen tools build clone from 
-# a local repo later.
-clone_branch qemu-xen master git://xenbits.xen.org/qemu-xen.git
