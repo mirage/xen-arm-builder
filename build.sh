@@ -140,6 +140,25 @@ chroot ${MNTROOTFS} chown syslog.adm /var/log/syslog
 # Suppress the avahi-daemon messages
 sed -i "5i# Discard avahi-daemon messages, they keep flooding the syslog\n:syslogtag, contains, \"avahi-daemon\" stop\n" etc/rsyslog.d/50-default.conf
 
+# Build and install the custom xen tools, this has to be done here so that the
+# tools are linking against the correct libraries, then install the new xen
+# service.  The update-rc.d command must be run manually since we're building
+# xen tools from source (normally this is done by a distribution-specific
+# project).
+chroot ${MNTROOTFS} /bin/bash -ex <<EOF
+
+cd /usr/src/xen
+CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master --prefix=/usr --disable-ocamltools --enable-stubdom --enable-c-stubdom --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
+make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master -j 4
+make dist-stubdom CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master -j 4
+make install-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
+make install-stubdom CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
+
+echo "Enabling new Xen services"
+update-rc.d xencommons defaults 19 81
+update-rc.d xendomains defaults 21 79
+EOF
+
 # Mirage user
 chroot ${MNTROOTFS} userdel -r linaro
 chroot ${MNTROOTFS} useradd -s /bin/bash -G admin -m mirage -p mljnMhCVerQE6	# Password is "mirage"
@@ -227,24 +246,3 @@ EOF
 echo "eval \$(opam config env)" >> home/mirage/.bashrc
 
 chroot ${MNTROOTFS} chown -R mirage /home/mirage
-
-# Build and install the custom xen tools, this has to be done here so that the
-# tools are linking against the correct libraries, then install the new xen
-# service.  The update-rc.d command must be run manually since we're building
-# xen tools from source (normally this is done by a distribution-specific
-# project).
-chroot ${MNTROOTFS} /bin/bash -ex <<EOF
-export OPAMROOT=${OPAM_ROOT}
-eval \$(opam config env)
-
-cd /usr/src/xen
-CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master --prefix=/usr --with-xenstored=oxenstored --enable-stubdom --enable-c-stubdom --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
-make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master -j 4
-make dist-stubdom CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master -j 4
-make install-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
-make install-stubdom CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
-
-echo "Enabling new Xen services"
-update-rc.d xencommons defaults 19 81
-update-rc.d xendomains defaults 21 79
-EOF
