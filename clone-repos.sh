@@ -46,7 +46,7 @@ cd ..
 
 clone_branch linux-firmware master https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
 
-clone_branch xen master git://xenbits.xen.org/xen.git
+clone_branch xen stable-4.7 git://xenbits.xen.org/xen.git
 
 cd xen
 for i in ../patches/xen*.patch; do

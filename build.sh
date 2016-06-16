@@ -103,15 +103,12 @@ mount -o bind /dev/pts ${MNTROOTFS}/dev/pts
 # Enable the cross compiling environment in this chroot
 #chroot ${MNTROOTFS} dpkg --add-architecture armhf
 
-echo "deb http://ppa.launchpad.net/avsm/ocaml42+opam12/ubuntu trusty main" > ${MNTROOTFS}/etc/apt/sources.list.d/ppa-opam.list
-chown root ${MNTROOTFS}/etc/apt/sources.list.d/ppa-opam.list
-
 chroot ${MNTROOTFS} apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 5B2D0C5561707B09
 chroot ${MNTROOTFS} apt-get -y update
 chroot ${MNTROOTFS} apt-get -y upgrade
 chroot ${MNTROOTFS} apt-get -y purge xen-utils-common xen-utils-4.4
 chroot ${MNTROOTFS} apt-get -y autoremove
-chroot ${MNTROOTFS} apt-get -y install openssh-server ocaml ocaml-native-compilers camlp4-extra opam build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
+chroot ${MNTROOTFS} apt-get -y install openssh-server ocaml ocaml-findlib build-essential lvm2 aspcud pkg-config m4 libssl-dev libffi-dev parted avahi-daemon libnss-mdns iw batctl --no-install-recommends
 chroot ${MNTROOTFS} apt-get -y install libxml2-dev libdevmapper-dev libpciaccess-dev libnl-dev libgnutls-dev --no-install-recommends
 chroot ${MNTROOTFS} apt-get -y install tcpdump telnet nmap tshark tmux locate hping3 man-db --no-install-recommends
 chroot ${MNTROOTFS} apt-get -y install uuid-dev software-properties-common libmysqlclient-dev bridge-utils --no-install-recommends
@@ -148,7 +145,7 @@ sed -i "5i# Discard avahi-daemon messages, they keep flooding the syslog\n:syslo
 chroot ${MNTROOTFS} /bin/bash -ex <<EOF
 
 cd /usr/src/xen
-CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master --prefix=/usr --disable-ocamltools --enable-stubdom --enable-c-stubdom --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
+CONFIG_SITE=/usr/src/xen/config.cache ./configure PYTHON_PREFIX_ARG=--install-layout=deb MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master --prefix=/usr --with-xenstored=oxenstored --enable-stubdom --enable-c-stubdom --build=x86_64-linux-gnu --host=arm-linux-gnueabihf
 make dist-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master -j 4
 make dist-stubdom CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master -j 4
 make install-tools CROSS_COMPILE=arm-linux-gnueabihf- XEN_TARGET_ARM=arm32 MINIOS_UPSTREAM_URL=https://github.com/talex5/mini-os.git MINIOS_UPSTREAM_REVISION=master
@@ -158,6 +155,12 @@ echo "Enabling new Xen services"
 update-rc.d xencommons defaults 19 81
 update-rc.d xendomains defaults 21 79
 EOF
+
+echo "deb http://ppa.launchpad.net/avsm/ocaml42+opam12/ubuntu trusty main" > ${MNTROOTFS}/etc/apt/sources.list.d/ppa-opam.list
+chown root ${MNTROOTFS}/etc/apt/sources.list.d/ppa-opam.list
+chroot ${MNTROOTFS} apt-get -y update
+chroot ${MNTROOTFS} apt-get -y upgrade
+chroot ${MNTROOTFS} apt-get -y install opam --no-install-recommends
 
 # Mirage user
 chroot ${MNTROOTFS} userdel -r linaro
@@ -201,39 +204,45 @@ opam repo add mirage-xen-latest https://github.com/dornerworks/mirage-xen-latest
 opam update
 status=1
 for i in {1..3}; do
-    opam pin add -y mirage 2.8.0
+    timeout 600 opam pin add -y mirage 2.8.0
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam pin \$i success"
         break
     elif [ \$status -eq 66 ]; then
         echo "opam package download failure \$i (\$status), retrying..."
+    elif [ \$status -eq 124 ]; then
+        echo "opam command timed out \$i (\$status), retrying..."
     else
         echo "opam pin failure \$i (\$status), exiting!"
         exit \$status
     fi
 done
 for i in {1..3}; do
-    opam pin add -y mirage-bootvar-xen 0.3.1
+    timeout 600 opam pin add -y mirage-bootvar-xen 0.3.1
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam pin \$i success"
         break
     elif [ \$status -eq 66 ]; then
         echo "opam package download failure \$i (\$status), retrying..."
+    elif [ \$status -eq 124 ]; then
+        echo "opam command timed out \$i (\$status), retrying..."
     else
         echo "opam pin failure \$i (\$status), exiting!"
         exit \$status
     fi
 done
 for i in {1..3}; do
-    opam install -y depext vchan mirage-console mirage-xen
+    timeout 600 opam install -y depext vchan mirage-console mirage-xen
     status=\$?
     if [ \$status -eq 0 ]; then
         echo "opam install \$i success"
         break
     elif [ \$status -eq 66 ]; then
         echo "opam package download failure \$i (\$status), retrying..."
+    elif [ \$status -eq 124 ]; then
+        echo "opam command timed out \$i (\$status), retrying..."
     else
         echo "opam install failure \$i (\$status), exiting!"
         exit \$status
