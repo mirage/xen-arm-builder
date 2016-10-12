@@ -1,0 +1,9 @@
+# alpine images
+alpine-uboot-*.tar.gz*
+
+# generated disk image
+*.img
+
+# source repos
+u-boot/
+linux/
