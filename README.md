@@ -11,10 +11,11 @@ To create the builder, clone repos, build `u-boot` and `Linux`, and construct
 disk image:
 
 ```
-cd builder
-docker build -t builder .
-docker run -it -v $(pwd):/cwd builder ./clone.sh
-docker run -it -v $(pwd):/cwd builder ./u-boot.sh
-docker run -it -v $(pwd):/cwd builder ./linux.sh
-docker run -it --privileged -v $(pwd):/cwd builder ./image.sh
+git clone https://github.com/mor1/arm-image-builder.git
+cd arm-image-builder
+docker pull mor1/arm-image-builder
+docker run -it -v $(pwd):/cwd mor1/arm-image-builder ./clone.sh
+docker run -it -v $(pwd):/cwd mor1/arm-image-builder ./u-boot.sh
+docker run -it -v $(pwd):/cwd mor1/arm-image-builder ./linux.sh
+docker run -it --privileged -v $(pwd):/cwd mor1/arm-image-builder ./image.sh
 ```
