@@ -3,16 +3,16 @@
 source ./variables.sh
 
 if [ \! -s "$UBOOTBIN" ]; then
-    echo U-Boot binary "$UBOOTBIN" not found; "make prepare" perhaps?
+    echo "U-Boot binary $UBOOTBIN not found; 'make prepare' perhaps?"
     exit 1
 elif [ \! -s "$ZIMAGE" ]; then
-    echo Linux kernel image "$ZIMAGE" not found; "make prepare" perhaps?
+    echo "Linux kernel image $ZIMAGE not found; 'make prepare' perhaps?"
     exit 2
 elif [ \! -s "$DTB" ]; then
-    echo DTB "$DTB" not found; "make prepare" perhaps?
+    echo "DTB $DTB not found; 'make prepare' perhaps?"
     exit 3
 elif [ \! -s "src/$ALPINETGZ" ]; then
-    echo Alpine tarball "src/$ALPINETGZ" not found; "make prepare" perhaps?
+    echo "Alpine tarball src/$ALPINETGZ not found; 'make prepare' perhaps?"
     exit 3
 fi
 
