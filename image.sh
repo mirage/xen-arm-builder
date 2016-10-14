@@ -1,10 +1,31 @@
 #!/bin/sh
 
+export \
+    IMAGE=cubieboard2.img \
+    SDSIZE=32G \
+    UBOOTBIN=src/u-boot/u-boot-sunxi-with-spl.bin \
+    ZIMAGE=src/linux/arch/arm/boot/zImage \
+    DTB=src/linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb \
+    ALPINETGZ=src/alpine-uboot-3.4.0-armhf.tar.gz \
+    BOOTSCR=src/u-boot/boot.scr
+
+if [ \! -s "$UBOOTBIN" ]; then
+    echo U-Boot binary "$UBOOTBIN" not found; execute "make prepare" perhaps?
+    exit 1
+elif [ \! -s "$ZIMAGE" ]; then
+    echo Linux kernel image "$ZIMAGE" not found; execute "make prepare" perhaps?
+    exit 2
+elif [ \! -s "$DTB" ]; then
+    echo DTB "$DTB" not found; execute "make prepare" perhaps?
+    exit 3
+elif [ \! -s "$ALPINETGZ" ]; then
+    echo Alpine tarball "$ALPINETGZ" not found; execute "make prepare" perhaps?
+    exit 3
+fi
+
 set -ex
 
-export IMAGE=cubieboard2.img
-
-dd if=/dev/zero of=$IMAGE bs=1 count=0 seek=512M status=progress
+dd if=/dev/zero of=$IMAGE bs=8M iflag=count_bytes count=$SDSIZE status=progress
 
 fdisk $IMAGE <<__EOF
 o
@@ -30,9 +51,10 @@ losetup -D && losetup -f -o$((2048*512)) $IMAGE
 mkfs.vfat /dev/loop/0
 mount /dev/loop/0 /mnt
 
-tar -C /mnt -xaf alpine-uboot-3.4.0-armhf.tar.gz
-cp linux/arch/arm/boot/zImage /mnt/boot/vmlinuz
-cp linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb /mnt/boot
+tar -C /mnt -xaf $ALPINETGZ
+cp $ZIMAGE /mnt/boot/vmlinuz
+cp $DTB /mnt/boot
+cp $BOOTSCR /mnt
 dd of=/mnt/extlinux/extlinux.conf <<__EOF
   LABEL custom
     MENU LABEL Custom kernel
@@ -43,5 +65,4 @@ dd of=/mnt/extlinux/extlinux.conf <<__EOF
 __EOF
 umount /mnt
 
-dd if=u-boot/u-boot-sunxi-with-spl.bin of=cubieboard2.img \
-   bs=1024 seek=8 conv=notrunc
+dd if=$UBOOTBIN of=$IMAGE bs=1024 seek=8 conv=notrunc
