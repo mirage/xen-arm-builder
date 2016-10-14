@@ -1,15 +1,16 @@
 #!/bin/sh
 
+source variables.sh
+
 set -ex
 
 mkdir -p src
 cd src
 
-ALPINEV=v3.4
-TGZ=alpine-uboot-3.4.0-armhf.tar.gz
 if [ ! -r $TGZ ]; then
-    curl -LO http://dl-cdn.alpinelinux.org/alpine/$ALPINEV/releases/armhf/$TGZ
-    curl -LO http://dl-cdn.alpinelinux.org/alpine/$ALPINEV/releases/armhf/$TGZ.asc
+    S=dl-cdn.alpinelinux.org
+    curl -LO http://$S/alpine/v${ALPINEV%.*}/releases/armhf/$ALPINETGZ
+    curl -LO http://$S/alpine/v$${ALPINEV%.*}/releases/armhf/$ALPINETGZ.asc
     gpg -v $TGZ.asc
 fi
 

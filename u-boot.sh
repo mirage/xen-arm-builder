@@ -1,9 +1,11 @@
 #!/bin/sh
 
+source ./variables.sh
+
 set -ex
 
 cd src/u-boot
-make CROSS_COMPILE=arm-linux-gnueabi- Cubieboard2_defconfig
+make CROSS_COMPILE=arm-linux-gnueabi- ${TARGET}_defconfig
 make CROSS_COMPILE=arm-linux-gnueabi- -j12
 
 cat > boot.uscr <<"EOF"

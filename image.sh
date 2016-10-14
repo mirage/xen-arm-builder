@@ -1,33 +1,27 @@
 #!/bin/sh
 
-export \
-    IMAGE=cubieboard2.img \
-    SDSIZE=32G \
-    UBOOTBIN=src/u-boot/u-boot-sunxi-with-spl.bin \
-    ZIMAGE=src/linux/arch/arm/boot/zImage \
-    DTB=src/linux/arch/arm/boot/dts/sun7i-a20-cubieboard2.dtb \
-    ALPINETGZ=src/alpine-uboot-3.4.0-armhf.tar.gz \
-    BOOTSCR=src/u-boot/boot.scr
+source ./variables.sh
 
 if [ \! -s "$UBOOTBIN" ]; then
-    echo U-Boot binary "$UBOOTBIN" not found; execute "make prepare" perhaps?
+    echo U-Boot binary "$UBOOTBIN" not found; "make prepare" perhaps?
     exit 1
 elif [ \! -s "$ZIMAGE" ]; then
-    echo Linux kernel image "$ZIMAGE" not found; execute "make prepare" perhaps?
+    echo Linux kernel image "$ZIMAGE" not found; "make prepare" perhaps?
     exit 2
 elif [ \! -s "$DTB" ]; then
-    echo DTB "$DTB" not found; execute "make prepare" perhaps?
+    echo DTB "$DTB" not found; "make prepare" perhaps?
     exit 3
-elif [ \! -s "$ALPINETGZ" ]; then
-    echo Alpine tarball "$ALPINETGZ" not found; execute "make prepare" perhaps?
+elif [ \! -s "src/$ALPINETGZ" ]; then
+    echo Alpine tarball "src/$ALPINETGZ" not found; "make prepare" perhaps?
     exit 3
 fi
 
 set -ex
 
-dd if=/dev/zero of=$IMAGE bs=8M iflag=count_bytes count=$SDSIZE status=progress
+dd if=/dev/zero of=sdcard.img bs=8M \
+   iflag=count_bytes count=$SDSIZE status=progress
 
-fdisk $IMAGE <<__EOF
+fdisk sdcard.img <<__EOF
 o
 n
 p
@@ -47,14 +41,14 @@ t
 w
 __EOF
 
-losetup -D && losetup -f -o$((2048*512)) $IMAGE
+losetup -D && losetup -f -o$((2048*512)) sdcard.img
 mkfs.vfat /dev/loop/0
 mount /dev/loop/0 /mnt
 
-tar -C /mnt -xaf $ALPINETGZ
+tar -C /mnt -xaf src/$ALPINETGZ
 cp $ZIMAGE /mnt/boot/vmlinuz
 cp $DTB /mnt/boot
-cp $BOOTSCR /mnt
+cp src/u-boot/boot.scr /mnt
 dd of=/mnt/extlinux/extlinux.conf <<__EOF
   LABEL custom
     MENU LABEL Custom kernel
@@ -65,4 +59,4 @@ dd of=/mnt/extlinux/extlinux.conf <<__EOF
 __EOF
 umount /mnt
 
-dd if=$UBOOTBIN of=$IMAGE bs=1024 seek=8 conv=notrunc
+dd if=$UBOOTBIN of=sdcard.img bs=1024 seek=8 conv=notrunc
