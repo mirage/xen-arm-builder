@@ -5,5 +5,4 @@ alpine-uboot-*.tar.gz*
 *.img
 
 # source repos
-u-boot/
-linux/
+src/
