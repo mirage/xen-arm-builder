@@ -1,5 +1,7 @@
 export TARGET=${TARGET-Cubieboard2}
-export DTB=src/linux/arch/arm/boot/dts/${DTB-sun7i-a20-$TARGET.dtb}
+
+export TARGETlc=$(tr '[:upper:]' '[:lower:]' <<<"$TARGET")
+export DTB=src/linux/arch/arm/boot/dts/${DTB-sun7i-a20-${TARGETlc}.dtb}
 
 export ALPINEV=3.4.0
 export ALPINETGZ=alpine-uboot-$ALPINEV-armhf.tar.gz

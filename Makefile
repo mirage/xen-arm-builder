@@ -3,7 +3,8 @@
 MNT ?= NOTHING-IS-MOUNTED
 CWD  = $$(pwd)
 DOCKER = docker run -it -v $(CWD):/cwd \
-  -e TARGET -e DTB -e ALPINEV -e ALPINETGZ -e SDSIZE -e UBOOTBIN -e ZIMAGE
+  -e TARGET -e TARGETlc -e DTB -e ALPINEV -e ALPINETGZ \
+  -e SDSIZE -e UBOOTBIN -e ZIMAGE
 
 shell:
 	$(DOCKER) --privileged mor1/arm-image-builder
@@ -16,7 +17,7 @@ build:
 	$(DOCKER) mor1/arm-image-builder ./linux.sh
 
 image: sdcard.img
-sdcard.img: $(wildcard *.sh)
+sdcard.img: $(wildcard *.sh) $(wildcard $$ZIMAGE $$DTB src/u-boot/boot.scr)
 	$(DOCKER) mor1/arm-image-builder ./image.sh
 
 find-mnt:
