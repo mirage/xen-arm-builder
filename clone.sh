@@ -2,6 +2,9 @@
 
 set -ex
 
+mkdir -p src
+cd src
+
 ALPINEV=v3.4
 TGZ=alpine-uboot-3.4.0-armhf.tar.gz
 if [ ! -r $TGZ ]; then
