@@ -1,6 +1,6 @@
 .PHONY: shell prepare build image sdcard clean find-mnt all
 
-MNT ?= NOTHING-IS-MOUNTED
+MNT ?= $$(make find-mnt)
 CWD  = $$(pwd)
 DOCKER = docker run -it -v $(CWD):/cwd \
   -e TARGET -e TARGETlc -e DTB -e ALPINEV -e ALPINETGZ \
@@ -10,6 +10,7 @@ shell:
 	$(DOCKER) --privileged mor1/arm-image-builder
 
 all: prepare build image
+
 prepare:
 	$(DOCKER) mor1/arm-image-builder ./clone.sh
 
