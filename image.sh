@@ -18,8 +18,7 @@ fi
 
 set -ex
 
-dd if=/dev/zero of=sdcard.img bs=8M \
-   iflag=count_bytes count=$SDSIZE status=progress
+dd if=/dev/zero of=sdcard.img bs=1 count=0 seek=32G
 
 fdisk sdcard.img <<__EOF
 o
