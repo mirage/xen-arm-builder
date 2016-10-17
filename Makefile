@@ -18,7 +18,7 @@ build:
 
 image: sdcard.img
 sdcard.img: $(wildcard *.sh) $(wildcard $$ZIMAGE $$DTB src/u-boot/boot.scr)
-	$(DOCKER) mor1/arm-image-builder ./image.sh
+	$(DOCKER) --privileged mor1/arm-image-builder ./image.sh
 
 find-mnt:
 	@echo -n MNT=/dev/r
