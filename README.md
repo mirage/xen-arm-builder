@@ -112,5 +112,5 @@ Similarly, create the guest partition, and then boot the domU in the usual way:
 
 ```
 /media/mmcblk0p1/debian-domU-install.sh
-xl cr -c /etc/xen/debian.cfg
+xl create -c /etc/xen/debian.cfg
 ```
