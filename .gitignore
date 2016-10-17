@@ -6,3 +6,6 @@ alpine-uboot-*.tar.gz*
 
 # source repos
 src/
+
+# any built images
+images/

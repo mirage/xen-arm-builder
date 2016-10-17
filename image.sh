@@ -149,7 +149,7 @@ name = "debian"
 memory = 256
 vcpus = 2
 
-disk = ['phy:/dev/@HOSTNAME@/debian,xvda,w']
+disk = ['phy:/dev/@HOSTNAME@/debian-disk,xvda,w']
 
 vif = ['mac=02:ff:e4:2a:dc:1b,bridge=br0']
 
