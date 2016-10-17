@@ -18,7 +18,7 @@ fi
 
 set -ex
 
-dd if=/dev/zero of=sdcard.img bs=1 count=0 seek=32G
+dd if=/dev/zero of=sdcard.img bs=1 count=0 seek=$SDSIZE
 
 fdisk sdcard.img <<__EOF
 o
@@ -41,11 +41,9 @@ w
 __EOF
 
 losetup -D && LOFS=$(losetup -f --show -o$((2048*512)) sdcard.img)
-
 mkfs.vfat $LOFS
-mount $LOFS /mnt
 
-echo $ALPINETGZ
+mount $LOFS /mnt
 tar -C /mnt -xaf src/$ALPINETGZ
 cp $ZIMAGE /mnt/boot/vmlinuz
 cp $DTB /mnt/boot

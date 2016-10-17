@@ -1,3 +1,4 @@
+export V=${V-1}
 export TARGET=${TARGET-Cubieboard2}
 
 export TARGETlc=$(tr '[:upper:]' '[:lower:]' <<<"$TARGET")
@@ -9,3 +10,13 @@ export ALPINETGZ=alpine-uboot-$ALPINEV-armhf.tar.gz
 export SDSIZE=${SDSIZE-32G}
 export UBOOTBIN=${UBOOTBIN-src/u-boot/u-boot-sunxi-with-spl.bin}
 export ZIMAGE=${ZIMAGE-src/linux/arch/arm/boot/zImage}
+
+echo "=== Configuration"
+echo "TARGET=$TARGET"
+echo "SDSIZE=$SDSIZE"
+echo "V=$V"
+echo
+echo "DTB=$DTB"
+echo "ALPINEV=$ALPINEV"
+echo "UBOOTBIN=$UBOOTBIN"
+echo "ZIMAGE=$ZIMAGE"

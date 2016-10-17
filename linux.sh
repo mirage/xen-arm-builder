@@ -1,9 +1,11 @@
 #!/bin/sh
 
+source ./variables.sh
+
 set -ex
 
 cd src/linux
-make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm sunxi_defconfig
+make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm V=$V sunxi_defconfig
 
 cat >> .config <<__EOF
 CONFIG_ARCH_DMA_ADDR_T_64BIT=y
@@ -42,5 +44,5 @@ CONFIG_XEN_SCSI_FRONTEND=y
 CONFIG_XEN_WDT=y
 __EOF
 
-make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm olddefconfig
-make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm all -j12
+make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm V=$V olddefconfig
+make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm V=$V all -j12
