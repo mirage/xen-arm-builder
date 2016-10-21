@@ -7,11 +7,11 @@ set -ex
 mkdir -p src
 cd src
 
-if [ ! -r $TGZ ]; then
+if [ ! -r $ALPINETGZ ]; then
     S=dl-cdn.alpinelinux.org
     curl -LO http://$S/alpine/v${ALPINEV%.*}/releases/armhf/$ALPINETGZ
     curl -LO http://$S/alpine/v$${ALPINEV%.*}/releases/armhf/$ALPINETGZ.asc
-    gpg -v $TGZ.asc
+    gpg -v $ALPINETGZ.asc
 fi
 
 # clone u-boot
