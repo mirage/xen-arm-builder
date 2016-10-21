@@ -24,4 +24,5 @@ cd u-boot && git checkout -f v2016.05 && cd ..
 if [ ! -d linux-stable ]; then
     git clone \
         https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
+fi
 cd linux-stable && git checkout -f v4.4.14 && cd ..
