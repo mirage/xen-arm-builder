@@ -1,163 +1,116 @@
-The scripts in this repository provide an easy way to set up Xen on a
-Cubieboard 2 or CubieTruck with:
+# Building Cubieboard (ARM) Images
 
-* U-Boot as the bootloader,
-* Xen as the hypervisor,
-* Ubuntu Trusty as dom0, and
-* LVM managing guest disks.
+Based on <https://gist.github.com/ijc25/612b8b7975e9461c3584b1402df2cb34> by
+Ian Campbell (@ijc25).
 
-# Pre-built binaries
+## Building Base Image
 
-To save time and the need to install Ubuntu, you can download
-pre-built SDcard images from here:
+To create the builder, clone repos, build `u-boot` and `Linux`, and construct
+disk image:
 
-* http://blobs.openmirage.org/cubieboard2.tar (Cubieboard 2)
-* http://blobs.openmirage.org/cubietruck.tar (CubieTruck)
+```
+git clone https://github.com/mor1/arm-image-builder.git
+cd arm-image-builder
 
-# Building from source
+make prepare # clones repos, pulls tarballs
+make build   # use the Docker image to build the `linux/` and `u-boot/` trees
+make image   # finally, create the on-disk `sdcard.img`
+# ...or `make all`
+```
 
-**Note**:Building from source is not easy, see
-[here](http://hyegar.com/2016/03/15/building-xen-arm-from-source/) for
-some common issues you might encounter.
+By default `TARGET=Cubieboard2`; prefix each command above with
+`TARGET=Cubietruck` to build for that. Other targets are available but have not
+been tested.
 
-These scripts must be run on Ubuntu or Debian (they install some
-packages using `apt-get`).
+Then, on OSX, to push the created `sdcard.img` to a physically mounted SD card:
 
-1. Select your board (`cubieboard2` or `cubietruck`):
+```
+make sdcard # ...runs `find-mnt` target to determine, on OSX, SD card mountpoint
+```
 
-         $ export BOARD=cubieboard2
+After creating the SD card with the base image, you need to insert it into the
+device, power on, and complete the installation.
 
-2. On Debian, follow the [sunxi](http://linux-sunxi.org/Toolchain)
-toolchain instructions to install the **emdebian-archive-keyring**
-package and the emdebian.org apt source.
+## First Boot / (Re-)Initialisation
 
-3. Download the dependencies (this will clone all the relevant
-   repositories):
+First, choose a new MAC address for the board. You can
+use [randmac](https://www.hellion.org.uk/cgi-bin/randmac.pl) to generate a valid
+local MAC address.
 
-         $ make clone
+Then, insert SD card into the Cubie, attach serial dongle (or screen and
+keyboard) and boot. Press any key to interrupt boot and (re-)initialise
+environment (replace `xx:xx:xx:xx:xx:xx` with the MAC address generated above)
+with:
 
-4. On Debian, symlink the GCC 4.7 cross-compilers into your `$PATH` as
-described on the [sunxi](http://linux-sunxi.org/Toolchain) site.
+    => env default -f -a
+    ## Resetting to default environment
+    => setenv ethaddr "xx:xx:xx:xx:xx:xx"
+    => setenv localcmd run scan_dev_for_scripts
+    => saveenv
+    Saving Environment to MMC...
+    Writing to MMC(0)... done
+    => reset
 
-5. Build U-Boot, Xen and Linux:
+## Base Install
 
-         $ make build
+After Alpine boots, login (`root`, no passwd) and setup:
 
-    You may get prompted about extra configuration options at this
-    point.  You can probably just press Return to accept the default
-    for each one.
+```
+setup-alpine
+```
 
-6. Build the SDcard image:
+Configure the desired keyboard layout, locale, hostname, and so on; the defaults
+for most things are fine. This will store config in `mmcblk0p1`, the FAT
+partition that was created during `make image`.
 
-         $ make $BOARD.img
+When complete, upgrade packages, setup networking, and enable `root` login over
+`ssh` by running:
 
-   It will need to mount various loopback devices on `/mnt` during
-   this process.
+```
+/media/mmcblk0p1/alpine-dom0-install.sh
+```
 
-# Installation
+After rebooting into Alpine under Xen, configure `dom0`:
 
-## Linux
+```
+setup-xen-dom0
+ifconfig br0 promisc
+lbu ci
+```
 
-1. Copy the `BOARD.img` to the SDcard, e.g.
+You should now have an SD card that will boot your device into an Alpine Linux
+dom0 on Xen. Access via `ssh` should also work so switch from serial to `ssh
+root@$HOSTNAME.local`. To configure passwordless login using keys, login and
+then:
 
-        $ dd if=cubieboard2.img of=/dev/mmcblk0
+```
+mkdir -m 0700 /root/.ssh
+cat >>/root/.ssh/authorized_keys <<EOF
+ssh-rsa YOUR-SSH-PUBLIC-KEY-HERE
+EOF
+chmod 600 /root/.ssh/authorized_keys
+lbu include /root/.ssh/authorized_keys
+lbu ci
+```
 
-## OS X
+## Building Xen Guests
 
-1. Find the disk device of the card you inserted:
+### Alpine
 
-        sudo diskutil list
+Create the guest partition, and then boot the `domU` in the usual way:
 
-   (e.g. `disk2`)
+```
+/media/mmcblk0p1/alpine-domU-install.sh
+xl create -c /etc/xen/alpine.cfg
+```
 
-2. Unmount the disk images:
+Finally, configure as usual by running `setup-alpine` in the domU.
 
-        sudo diskutil unmountDisk /dev/diskN
+### Debian
 
-3. Copy the image:
+Similarly, create the guest partition, and then boot the domU in the usual way:
 
-        sudo dd if=cubieboard2.img of=/dev/rdiskN bs=64k
-
-   Note: Without the 'rdisk' in the output file, the copying will be
-   extremely slow due to buffering.
-
-# Booting
-
-Insert the SDcard in the device, then connect the network and power.
-The device should get an IP address using DHCP.  SSH to the device
-(the name is `$BOARD.local.`, which can be used if your machine
-supports mDNS/avahi/zeroconf):
-
-    $ ssh mirage@cubieboard2.local.
-
-The password is `mirage`.
-
-Install your SSH public key and change login password (or lock the
-account with `sudo passwd -l mirage`).
-
-If you plan on connecting to TLS-secured services, don't forget to set
-the system time so that certificate validity windows work correctly
-(not many TLS certificates were valid in 1970). For example:
-
-    $ sudo ntpdate uk.pool.ntp.org
-
-# Using Xen
-
-You should now be able to use Xen via the `xl` command:
-
-    $ sudo xl list Name ID Mem VCPUs State Time(s) Domain-0 0 512 2
-    r----- 171.7
-
-# Installing libvirt w/Xen support
-
-The libvirt-package in Ubuntu does not have Xen support enabled by
-default. To download and install libvirt automatically, run `sudo
-/root/scripts/install_libvirt.sh`. This script compiles libvirt with
-Xen support and configures libvirtd to listen to a Unix socket. If you
-need access to libvirtd over TCP, further instructions are available
-[here](http://openmirage.org/wiki/libvirt-on-cubieboard).
-
-
-# Adding device drivers
-
-To add drivers to the supplied Linux kernel, first clone and install
-the default configuration:
-
-	$ make clone
-
-After cloning, the Linux kernel is in a folder called 'linux' and the
-default configuration file from the 'config/' folder has been copied
-to 'linux/.config'.
-
-You can now configure the kernel, for example by using menuconfig:
-
-	$ cd linux $ make clean $ make menuconfig
-
-When you are happy with the configuration you may copy 'linux/.config'
-back to 'config/' to make sure that it is not overwritten later by
-'make clone'.
-
-If the drivers you have enabled need binary firmware, add the name of
-the firmware file (or folder) to the FIRMWARE-variable in the
-Makefile. Alternatively, you can set the FIRMWARE environment variable
-before calling 'make':
-
-	$ export FIRMWARE=rtlwifi
-
-The specified firmware will be copied from 'linux-firmware/' to
-'/lib/firmware' on the final image.
-
-You should now be able to build the new image with the updated kernel
-and firmware with "make build" and "make $BOARD.img".
-
-## How to Contribute
-
-You are welcome to clone this repository and send us back pull
-requests. You can find more documentation on <http://openmirage.org>.
-
-## License
-
-All the scripts and metadata contained in this repository are licensed
-under the
-[CC0 1.0 Universal](http://creativecommons.org/publicdomain/zero/1.0/)
-license.
+```
+/media/mmcblk0p1/debian-domU-install.sh
+xl create -c /etc/xen/debian.cfg
+```

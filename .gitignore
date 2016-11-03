@@ -1,8 +1,11 @@
-linaro-*.tar.gz
-linux-firmware/
-linux/
-u-boot/
-xen/
-boot/
-linux-arm-modules/
+# alpine images
+alpine-uboot-*.tar.gz*
+
+# generated disk image
 *.img
+
+# source repos
+src/
+
+# any built images
+images/

@@ -1,4 +1,16 @@
 language: c
-script: bash -ex .travis-ci.sh
+
+sudo: required
+services:
+  - docker
+
 env:
-  - BOARD=cubieboard2
+  - TARGET=Cubieboard2
+  - TARGET=Cubietruck
+
+before_script:
+  - make prepare
+
+script:
+  - make build
+  - make image

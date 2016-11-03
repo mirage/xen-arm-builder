@@ -1,57 +1,51 @@
-.PHONY: all clean
+.PHONY: shell prepare build image sdcard clean find-mnt all
 
-ROOTFS ?= linaro-trusty-developer-20140522-661.tar.gz
-ROOTFSURL ?= http://releases.linaro.org/14.05/ubuntu/trusty-images/developer/
-BOARD ?= cubieboard2
-# BOARD ?= cubietruck
-FIRMWARE ?= rtlwifi htc_9271.fw
+CWD  = $$(pwd)
+DOCKER = docker run -it -v $(CWD):/cwd \
+  -e TARGET -e TARGETlc -e DTB -e ALPINEV -e ALPINETGZ \
+  -e SDSIZE -e UBOOTBIN -e ZIMAGE
+UNAMES := $(shell uname -s)
 
-all: 
-	@echo ------
-	@echo "BOARD can be: cubieboard2 (default) or cubietruck"
-	@echo ""
-	@echo "export BOARD=cubieboard2"
-	@echo "# select which board you want to build an image for."
-	@echo "make clone"
-	@echo "# will fetch repositories or pull"
-	@echo "make build"
-	@echo "# will build xen, u-boot and linux dom0"
-	@echo "make $${BOARD}.tar"
-	@echo "# gives you a sparse tarfile of the image"
-	@echo ------
+shell:
+	$(DOCKER) --privileged mor1/arm-image-builder
 
-## Fetch and clone all the external files needed
-clone: $(ROOTFS)
-	./clone-repos.sh
-	cp config/config-cubie2 linux/.config
+all: prepare build image
+
+prepare:
+	$(DOCKER) mor1/arm-image-builder ./clone.sh
 
 build:
-	BOARD=$(BOARD) ./build-uboot.sh
-	./build-xen.sh
-	./build-linux.sh
+	$(DOCKER) mor1/arm-image-builder ./u-boot.sh
+	$(DOCKER) mor1/arm-image-builder ./linux.sh
 
-## Get the latest Linaro root image
-$(ROOTFS):
-	curl -OL $(ROOTFSURL)/$(ROOTFS)
+image: sdcard.img
+sdcard.img: $(wildcard *.sh) $(wildcard $$ZIMAGE $$DTB src/u-boot/boot.scr)
+	# sparse file appears to need to already exist, so touch to create
+	$(RM) sdcard.img && touch sdcard.img
+	$(DOCKER) --privileged mor1/arm-image-builder ./image.sh
 
-## Build the image file
-${BOARD}.img: boot/boot-${BOARD}.scr $(ROOTFS)
-	sudo env ROOTFS=$(ROOTFS) BOARD=$(BOARD) FIRMWARE="$(FIRMWARE)" ./build.sh || (rm -f $@; exit 1)
+ifeq ($(UNAMES),Darwin)
 
-## Make a sparse (smaller, but source must be read twice) archive of the image file
-%.tar: %.img
-	rm -f $@
-	tar -Scf $@ $<
+DEFAULT_MNT := $$(make find-mnt)
+MNT ?= $(DEFAULT_MNT)
 
-## Make a sparse and compressed archive of the image file
-%.tar.gz: %.img
-	rm -f $@
-	tar -Szcf $@ $<
+find-mnt:
+	@echo -n /dev/r
+	@diskutil list \
+	  | grep "NO NAME" | tr -s " " \
+	  | cut -f 8 -d " " | cut -f -2 -d "s"
 
-## Generate the u-boot boot commands script
-%.scr: %.cmd
-	./u-boot/build-${BOARD}/tools/mkimage -C none -A arm -T script -d "$<" "$@"
+sdcard:
+	sudo diskutil unmountDisk $(MNT) || true
+	sudo dd if=sdcard.img of=$(MNT) bs=1m
+	sudo diskutil eject $(MNT)
+
+else # not OSX
+
+sdcard:
+	@echo "Cannot write sdcard on $(UNAMES)" && false
+
+endif
 
 clean:
-	rm -f cubie*.img boot/boot.*.scr
-	cd u-boot && $(MAKE) mrproper
+	$(RM) sdcard.img
