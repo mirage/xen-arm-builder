@@ -1,5 +1,9 @@
 language: c
 
+sudo: required
+services:
+  - docker
+
 env:
   - TARGET=Cubieboard2
   - TARGET=Cubietruck
