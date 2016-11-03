@@ -1,0 +1,12 @@
+language: c
+
+env:
+  - TARGET=Cubieboard2
+  - TARGET=Cubietruck
+
+before_script:
+  - make prepare
+
+script:
+  - make build
+  - make image
