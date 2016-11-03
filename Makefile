@@ -1,10 +1,10 @@
 .PHONY: shell prepare build image sdcard clean find-mnt all
 
-MNT ?= $$(make find-mnt)
 CWD  = $$(pwd)
 DOCKER = docker run -it -v $(CWD):/cwd \
   -e TARGET -e TARGETlc -e DTB -e ALPINEV -e ALPINETGZ \
   -e SDSIZE -e UBOOTBIN -e ZIMAGE
+UNAMES := $(shell uname -s)
 
 shell:
 	$(DOCKER) --privileged mor1/arm-image-builder
@@ -24,6 +24,11 @@ sdcard.img: $(wildcard *.sh) $(wildcard $$ZIMAGE $$DTB src/u-boot/boot.scr)
 	$(RM) sdcard.img && touch sdcard.img
 	$(DOCKER) --privileged mor1/arm-image-builder ./image.sh
 
+ifeq ($(UNAMES),Darwin)
+
+DEFAULT_MNT := $$(make find-mnt)
+MNT ?= $(DEFAULT_MNT)
+
 find-mnt:
 	@echo -n /dev/r
 	@diskutil list \
@@ -34,6 +39,13 @@ sdcard:
 	sudo diskutil unmountDisk $(MNT) || true
 	sudo dd if=sdcard.img of=$(MNT) bs=1m
 	sudo diskutil eject $(MNT)
+
+else # not OSX
+
+sdcard:
+	@echo "Cannot write sdcard on $(UNAMES)" && false
+
+endif
 
 clean:
 	$(RM) sdcard.img
