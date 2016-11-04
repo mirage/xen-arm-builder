@@ -70,7 +70,8 @@ When complete, upgrade packages, setup networking, and enable `root` login over
 /media/mmcblk0p1/alpine-dom0-install.sh
 ```
 
-After rebooting into Alpine under Xen, configure `dom0`:
+Note that this will reboot at this end, but Xen hasn't yet been configured.
+After rebooting into Alpine, configure `dom0`:
 
 ```
 setup-xen-dom0
