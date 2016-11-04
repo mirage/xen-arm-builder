@@ -94,9 +94,6 @@ iface br0 inet dhcp
     bridge-ports eth0
     bridge-stp 0
 
-auto eth0
-iface eth0 inet dhcp
-    hostname \$HN
 _EOF
 
 # install Xen
