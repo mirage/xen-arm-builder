@@ -77,8 +77,8 @@ for s in dbus avahi-daemon ; do service \$s start && rc-update add \$s ; done
 chronyc makestep
 
 # enable password login over SSH
-sed -i \'s/^#PermitRootLogin prohibit-password/PermitRootLogin yes/\' /etc/ssh/sshd_config
-sed -i \'s/^#PermitEmptyPasswords no/PermitEmptyPasswords yes/\' /etc/ssh/sshd_config
+sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/^#PermitEmptyPasswords no/PermitEmptyPasswords yes/' /etc/ssh/sshd_config
 service sshd restart
 
 # configure bridged networking
