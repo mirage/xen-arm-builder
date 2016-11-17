@@ -5,8 +5,8 @@ services:
   - docker
 
 env:
-  - TARGET=Cubieboard2
-  - TARGET=Cubietruck
+  - TARGET=Cubieboard2 V=0
+  - TARGET=Cubietruck  V=0
 
 before_script:
   - make prepare
