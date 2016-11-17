@@ -45,4 +45,4 @@ CONFIG_XEN_WDT=y
 __EOF
 
 make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm V=$V olddefconfig
-make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm V=$V all -j12
+make CROSS_COMPILE=arm-linux-gnueabi- ARCH=arm V=$V all -j$J

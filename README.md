@@ -9,8 +9,8 @@ To create the builder, clone repos, build `u-boot` and `Linux`, and construct
 disk image:
 
 ```
-git clone https://github.com/mor1/arm-image-builder.git
-cd arm-image-builder
+git clone https://github.com/mirage/xen-arm-builder.git
+cd xen-arm-builder
 
 make prepare # clones repos, pulls tarballs
 make build   # use the Docker image to build the `linux/` and `u-boot/` trees

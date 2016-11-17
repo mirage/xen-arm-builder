@@ -6,7 +6,7 @@ set -ex
 
 cd src/u-boot
 make CROSS_COMPILE=arm-linux-gnueabi- V=$V ${TARGET}_defconfig
-make CROSS_COMPILE=arm-linux-gnueabi- V=$V -j12
+make CROSS_COMPILE=arm-linux-gnueabi- V=$V -j$J
 
 cat > boot.uscr <<"EOF"
 setenv xen_addr_r 0x42e00000
