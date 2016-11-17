@@ -1,9 +1,9 @@
 .PHONY: shell prepare build image sdcard clean find-mnt all
 
 CWD  = $$(pwd)
-DOCKER = docker run -it -v $(CWD):/cwd \
-  -e TARGET -e TARGETlc -e DTB -e ALPINEV -e ALPINETGZ \
-  -e SDSIZE -e UBOOTBIN -e ZIMAGE
+DOCKER = docker run -it -v $(CWD):/cwd             \
+  -e TARGET -e SDSIZE -e V -e J -e TARGETlc -e DTB \
+  -e ALPINEV -e ALPINETGZ -e UBOOTBIN -e ZIMAGE
 UNAMES := $(shell uname -s)
 
 shell:
