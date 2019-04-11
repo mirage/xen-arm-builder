@@ -54,7 +54,7 @@ cat >/mnt/extlinux/extlinux.conf <<EOF
   LABEL custom
     MENU LABEL Custom kernel
     LINUX /boot/vmlinuz
-    INITRD /boot/initramfs-grsec
+    INITRD /boot/initramfs-vanilla
     DEVICETREEDIR /boot
     APPEND modules=loop,squashfs,sd-mod,usb-storage console=\${console}
 EOF
