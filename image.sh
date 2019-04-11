@@ -111,7 +111,7 @@ LABEL local
 LABEL custom
   MENU LABEL Custom kernel
   LINUX /boot/vmlinuz
-  INITRD /boot/initramfs-grsec
+  INITRD /boot/initramfs
   DEVICETREEDIR /boot
   APPEND modules=loop,squashfs,sd-mod,usb-storage console=\${console}
 _EOF
