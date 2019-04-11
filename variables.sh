@@ -6,7 +6,7 @@ export J=${J-12}
 export TARGETlc=$(tr '[:upper:]' '[:lower:]' <<<"$TARGET")
 export DTB=src/linux-stable/arch/arm/boot/dts/${DTB-sun7i-a20-${TARGETlc}.dtb}
 
-export ALPINEV=3.4.0
+export ALPINEV=3.9.3
 export ALPINETGZ=alpine-uboot-$ALPINEV-armhf.tar.gz
 
 export UBOOTBIN=${UBOOTBIN-src/u-boot/u-boot-sunxi-with-spl.bin}
