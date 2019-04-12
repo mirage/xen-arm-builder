@@ -54,7 +54,7 @@ cat >/mnt/extlinux/extlinux.conf <<EOF
   LABEL custom
     MENU LABEL Custom kernel
     LINUX /boot/vmlinuz
-    INITRD /boot/initramfs-grsec
+    INITRD /boot/initramfs-vanilla
     DEVICETREEDIR /boot
     APPEND modules=loop,squashfs,sd-mod,usb-storage console=\${console}
 EOF
@@ -111,7 +111,7 @@ LABEL local
 LABEL custom
   MENU LABEL Custom kernel
   LINUX /boot/vmlinuz
-  INITRD /boot/initramfs-grsec
+  INITRD /boot/initramfs-vanilla
   DEVICETREEDIR /boot
   APPEND modules=loop,squashfs,sd-mod,usb-storage console=\${console}
 _EOF
@@ -131,7 +131,7 @@ vgcreate \$VG /dev/mmcblk0p2
 cat >/etc/xen/alpine.cfg <<_EOF
 name = "alpine"
 kernel = "/media/mmcblk0p1/boot/vmlinuz"
-ramdisk = "/media/mmcblk0p1/boot/initramfs-grsec"
+ramdisk = "/media/mmcblk0p1/boot/initramfs-vanilla"
 cmdline = "console=hvc0"
 memory = 128
 vif = ["mac=06:ac:b4:92:fc:49,bridge=br0"]
